@@ -1,325 +1,802 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ギターコードフォーム表</title>
-<style>
-  body {
-    font-family: sans-serif;
-    background: #f6f7f9;
-    margin: 0;
-    padding: 20px;
-    color: #1f2328;
-  }
-  .container {
-    max-width: 1100px;
-    margin: 0 auto;
-  }
-  .control-panel {
-    background: #fff;
-    border: 1px solid #d0d7de;
-    padding: 15px;
-    border-radius: 8px;
-    margin-bottom: 20px;
-  }
-  .input-row {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    align-items: center;
-  }
-  input[type="text"] {
-    flex: 1;
-    min-width: 220px;
-    padding: 8px 12px;
-    font-size: 1rem;
-    border: 1px solid #d0d7de;
-    border-radius: 6px;
-  }
-  button {
-    padding: 8px 14px;
-    font-size: 0.9rem;
-    font-weight: bold;
-    cursor: pointer;
-    background: #0969da;
-    color: #fff;
-    border: none;
-    border-radius: 6px;
-  }
-  button:hover { background: #0858b9; }
-  .secondary-btn {
-    background: #f6f8fa;
-    color: #1f2328;
-    border: 1px solid #d0d7de;
-  }
-  .secondary-btn:hover { background: #e5e7eb; }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tab & Chord Logger</title>
+  <style>
+    :root {
+      --primary-color: #4a90e2;
+      --bg-color: #121212;
+      --card-bg: #1e1e1e;
+      --card-inner-bg: #2a2a2a;
+      --text-color: #f0f0f0;
+      --text-muted: #aaaaaa;
+      --accent-color: #f39c12;
+      --border-color: #3e3e3e;
+      --select-bg: rgba(74, 144, 226, 0.4);
+      --select-border: #4a90e2;
+      --manual-color: #e11d48;
+      --fret-line: #555555;
+      --string-line: #777777;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      margin: 0;
+      padding: 0;
+      padding-top: 60px;
+      padding-bottom: 40px;
+      user-select: none;
+    }
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 12px;
+      box-sizing: border-box;
+    }
+    header.fixed-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 50px;
+      background: #181818;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 16px;
+      z-index: 1000;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+    }
+    .header-title {
+      font-size: 1.1rem;
+      font-weight: bold;
+      color: #fff;
+      margin: 0;
+    }
+    .header-actions {
+      display: flex;
+      gap: 6px;
+    }
+    button {
+      cursor: pointer;
+      border: none;
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-weight: bold;
+      transition: opacity 0.2s;
+    }
+    button:hover { opacity: 0.9; }
+    button:active { opacity: 0.7; }
+    .btn-sync { background-color: #27ae60; color: white; }
+    .btn-github { background-color: #24292e; color: white; border: 1px solid #444; }
+    .btn-secondary { background-color: #333; color: #fff; border: 1px solid var(--border-color); }
+    .btn-add { background-color: var(--primary-color); color: white; }
+    .btn-danger { background-color: #c0392b; color: white; padding: 4px 8px; font-size: 0.8rem; }
+    .btn-sm { padding: 4px 8px; font-size: 0.8rem; }
 
-  .board-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 16px;
-  }
-  .chord-card {
-    background: #fff;
-    border: 1px solid #d0d7de;
-    border-radius: 8px;
-    padding: 12px;
-    width: 220px;
-    position: relative;
-  }
-  .card-top-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 4px;
-    margin-bottom: 4px;
-  }
-  .mini-btn {
-    width: 22px;
-    height: 22px;
-    padding: 0;
-    font-size: 0.8rem;
-    background: #f6f8fa;
-    color: #1f2328;
-    border: 1px solid #d0d7de;
-    border-radius: 4px;
-  }
-  .chord-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid #eaeef2;
-    padding-bottom: 6px;
-    margin-bottom: 8px;
-    position: relative;
-  }
-  .chord-name-input {
-    font-size: 1.2rem;
-    font-weight: bold;
-    width: 110px;
-    border: 1px solid transparent;
-    background: transparent;
-    padding: 2px;
-  }
-  .chord-name-input:focus, .chord-name-input:hover {
-    border-color: #d0d7de;
-    background: #f6f8fa;
-    outline: none;
-  }
-  .variant-badge {
-    font-size: 0.7rem;
-    color: #656d76;
-    display: block;
-  }
-  .dropdown-btn {
-    font-size: 0.75rem;
-    padding: 3px 6px;
-    background: #f6f8fa;
-    color: #1f2328;
-    border: 1px solid #d0d7de;
-    border-radius: 4px;
-  }
-  .dropdown-menu {
-    position: absolute;
-    top: 100%;
-    right: 0;
-    background: #fff;
-    border: 1px solid #d0d7de;
-    border-radius: 6px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    display: none;
-    z-index: 10;
-    min-width: 160px;
-  }
-  .dropdown-menu.open { display: block; }
-  .dropdown-item {
-    padding: 6px 10px;
-    font-size: 0.8rem;
-    cursor: pointer;
-  }
-  .dropdown-item:hover { background: #f3f4f6; }
-  .dropdown-item.active { color: #0969da; font-weight: bold; background: #eff6ff; }
+    .sync-status-bar {
+      font-size: 0.8rem;
+      font-weight: bold;
+      color: #2ecc71;
+      background: #1b382b;
+      padding: 8px 12px;
+      border-radius: 8px;
+      margin-bottom: 12px;
+      text-align: center;
+      border: 1px solid #27ae60;
+    }
+    .page { display: none; }
+    .page.active { display: block; }
+    
+    .app-content {
+      background: var(--card-bg);
+      padding: 16px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+      border: 1px solid var(--border-color);
+      margin-bottom: 16px;
+    }
 
-  .fretboard-wrapper {
-    display: flex;
-    align-items: flex-start;
-  }
-  .start-fret-label {
-    width: 20px;
-    padding-top: 20px;
-    font-size: 0.8rem;
-    font-weight: bold;
-    text-align: right;
-    padding-right: 3px;
-  }
-  table.fretboard {
-    border-collapse: collapse;
-  }
-  table.fretboard td {
-    height: 22px;
-    text-align: center;
-    vertical-align: middle;
-  }
-  .fret-num-row td {
-    font-size: 0.65rem;
-    color: #656d76;
-    height: 14px;
-  }
-  .open-cell {
-    width: 22px;
-    border-right: 3px solid #1f2328;
-    cursor: pointer;
-    position: relative;
-  }
-  .open-cell.no-nut {
-    border-right: 2px solid #8c959f;
-  }
-  .fret-cell {
-    width: 32px;
-    border-right: 1.5px solid #8c959f;
-    position: relative;
-    cursor: pointer;
-  }
-  .fret-cell::before {
-    content: "";
-    position: absolute;
-    left: 0; right: 0; top: 50%;
-    height: 1.5px;
-    background: #57606a;
-    transform: translateY(-50%);
-  }
-  .fret-cell:hover, .open-cell:hover {
-    background: rgba(9, 105, 218, 0.08);
-  }
-  .finger-dot {
-    width: 13px; height: 13px;
-    background: #1f2328;
-    border-radius: 50%;
-    position: absolute;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 2;
-  }
-  .finger-dot.manual {
-    background: #e11d48;
-  }
-  .open-mark {
-    font-size: 0.8rem;
-    font-weight: bold;
-  }
-  .open-mark.manual {
-    color: #e11d48;
-  }
-  .card-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 8px;
-    font-size: 0.75rem;
-  }
-</style>
+    .top-controls {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+    .search-input {
+      flex: 1;
+      padding: 8px 12px;
+      background: var(--card-inner-bg);
+      border: 1px solid var(--border-color);
+      color: #fff;
+      border-radius: 6px;
+    }
+    .song-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .song-item {
+      background: var(--card-inner-bg);
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      border: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+    }
+    .song-item:hover { background: #333; }
+    .song-artist { font-size: 0.85rem; color: var(--text-muted); }
+    .song-title-text { font-size: 1rem; font-weight: bold; color: #fff; margin-top: 2px; }
+
+    .form-group { margin-bottom: 12px; }
+    .form-group label { display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 4px; }
+    input[type="text"], input[type="number"], input[type="password"], select {
+      width: 100%;
+      padding: 8px 10px;
+      box-sizing: border-box;
+      background-color: var(--card-inner-bg);
+      border: 1px solid var(--border-color);
+      color: var(--text-color);
+      border-radius: 6px;
+      font-size: 0.95rem;
+    }
+    .grid-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .grid-3col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+
+    /* 🎸 コードフォーム表ビルダー用スタイル */
+    .chord-form-section {
+      background: var(--card-inner-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 14px;
+      margin-top: 20px;
+    }
+    .chord-form-header {
+      font-size: 1rem;
+      font-weight: bold;
+      color: var(--accent-color);
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .chord-input-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .board-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: flex-start;
+    }
+    .chord-card {
+      background: #1e1e1e;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 10px;
+      width: 210px;
+      position: relative;
+      user-select: none;
+    }
+    .card-top-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 4px;
+      margin-bottom: 4px;
+    }
+    .mini-btn {
+      width: 22px;
+      height: 22px;
+      padding: 0;
+      font-size: 0.8rem;
+      background: #333;
+      color: #fff;
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+    }
+    .mini-btn:hover { background: #444; }
+    .chord-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #333;
+      padding-bottom: 6px;
+      margin-bottom: 6px;
+      position: relative;
+    }
+    .chord-name-field {
+      font-size: 1.1rem;
+      font-weight: bold;
+      width: 100px;
+      border: 1px solid transparent;
+      background: transparent;
+      color: #fff;
+      padding: 2px;
+    }
+    .chord-name-field:focus, .chord-name-field:hover {
+      border-color: var(--border-color);
+      background: #222;
+      outline: none;
+    }
+    .variant-badge {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      display: block;
+    }
+    .dropdown-btn {
+      font-size: 0.7rem;
+      padding: 3px 6px;
+      background: #333;
+      color: #fff;
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+    }
+    .dropdown-menu {
+      position: absolute;
+      top: 100%;
+      right: 0;
+      background: #252525;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+      display: none;
+      z-index: 20;
+      min-width: 160px;
+      padding: 4px 0;
+    }
+    .dropdown-menu.open { display: block; }
+    .dropdown-item {
+      padding: 6px 10px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      color: #ddd;
+    }
+    .dropdown-item:hover { background: #333; }
+    .dropdown-item.active { color: var(--primary-color); font-weight: bold; background: #1a2a3a; }
+
+    .fretboard-wrapper {
+      display: flex;
+      align-items: flex-start;
+    }
+    .start-fret-label {
+      width: 20px;
+      padding-top: 18px;
+      font-size: 0.75rem;
+      font-weight: bold;
+      text-align: right;
+      padding-right: 3px;
+      color: var(--accent-color);
+    }
+    table.fretboard-table {
+      border-collapse: collapse;
+      margin: 0 auto;
+    }
+    table.fretboard-table td {
+      height: 22px;
+      text-align: center;
+      vertical-align: middle;
+    }
+    .fret-num-row td {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      height: 14px;
+    }
+    .open-cell {
+      width: 20px;
+      border-right: 3px solid #888;
+      cursor: pointer;
+      position: relative;
+    }
+    .open-cell.no-nut {
+      border-right: 2px solid var(--fret-line);
+    }
+    .fret-cell {
+      width: 30px;
+      border-right: 1.5px solid var(--fret-line);
+      position: relative;
+      cursor: pointer;
+    }
+    .fret-cell::before {
+      content: "";
+      position: absolute;
+      left: 0; right: 0; top: 50%;
+      height: 1.5px;
+      background: var(--string-line);
+      transform: translateY(-50%);
+    }
+    .fret-cell:hover, .open-cell:hover {
+      background: rgba(74, 144, 226, 0.15);
+    }
+    .finger-dot {
+      width: 12px; height: 12px;
+      background: #fff;
+      border-radius: 50%;
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 2;
+    }
+    .finger-dot.manual {
+      background: var(--manual-color);
+    }
+    .open-mark {
+      font-size: 0.75rem;
+      font-weight: bold;
+      color: #fff;
+    }
+    .open-mark.manual {
+      color: var(--manual-color);
+    }
+    .chord-card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 8px;
+      font-size: 0.75rem;
+    }
+
+    /* 既存のタブグリッド・セクション用スタイル */
+    .section-card {
+      background: var(--card-inner-bg);
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 16px;
+      border: 1px solid var(--border-color);
+    }
+    .part-card {
+      background: #222;
+      border-radius: 6px;
+      padding: 10px;
+      margin-top: 10px;
+      border: 1px solid #3a3a3a;
+    }
+    .part-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .part-name-input {
+      width: 100px !important;
+      font-weight: bold;
+      color: var(--accent-color);
+      text-align: center;
+    }
+
+    .tab-grid-wrapper {
+      width: 100%;
+      overflow-x: auto !important;
+      overflow-y: hidden;
+      padding-bottom: 8px;
+      margin-bottom: 6px;
+      scrollbar-width: thin;
+      scrollbar-color: var(--primary-color) #222;
+      -webkit-overflow-scrolling: touch;
+    }
+    .tab-grid-wrapper::-webkit-scrollbar { height: 8px; }
+    .tab-grid-wrapper::-webkit-scrollbar-track { background: #181818; border-radius: 4px; }
+    .tab-grid-wrapper::-webkit-scrollbar-thumb { background: var(--primary-color); border-radius: 4px; }
+
+    .tab-table {
+      border-collapse: collapse;
+      font-family: 'Courier New', Courier, monospace;
+      width: max-content;
+      table-layout: fixed;
+    }
+    .tab-table th, .tab-table td {
+      border: 1px solid #444;
+      text-align: center;
+      padding: 0;
+      box-sizing: border-box;
+      position: relative;
+    }
+    .tab-table th {
+      background-color: #1a1a1a;
+      color: var(--accent-color);
+      font-size: 0.8rem;
+    }
+    .chord-col { width: 90px !important; }
+    .tab-cell-col { width: 65px !important; }
+    .control-col { width: 85px !important; }
+
+    .string-control-td {
+      white-space: nowrap;
+      padding: 2px 4px !important;
+      background: #181818;
+      width: 85px !important;
+    }
+    .string-select {
+      background: #111;
+      color: var(--primary-color);
+      border: 1px solid #333;
+      font-weight: bold;
+      font-size: 0.8rem;
+      text-align: center;
+      padding: 2px 0;
+      width: 42px;
+      border-radius: 4px;
+    }
+    .tab-input-wrapper {
+      position: relative;
+      width: 100%;
+      height: 28px;
+      box-sizing: border-box;
+    }
+    .tab-ghost {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      display: flex; align-items: center; justify-content: center;
+      color: rgba(255, 255, 255, 0.25);
+      font-size: 0.75rem;
+      pointer-events: none;
+      font-weight: bold;
+    }
+    .tab-input {
+      position: absolute;
+      top: 0; left: 0; 
+      width: 100% !important; 
+      height: 100%;
+      background: transparent;
+      border: none;
+      color: #fff;
+      text-align: center;
+      font-family: monospace;
+      font-size: 0.8rem;
+      font-weight: bold;
+      box-sizing: border-box;
+      user-select: text;
+      padding: 0;
+    }
+    td.selected-cell {
+      background-color: var(--select-bg) !important;
+      outline: 2px solid var(--select-border);
+      z-index: 5;
+    }
+    .key-badge {
+      display: inline-block;
+      background: #2980b9;
+      color: #fff;
+      font-size: 0.75rem;
+      padding: 2px 6px;
+      border-radius: 4px;
+      margin-left: 8px;
+    }
+    .ascii-output {
+      font-family: monospace;
+      white-space: pre-wrap;
+      word-break: break-all;
+      background: #000;
+      color: #00ff66;
+      padding: 10px;
+      border-radius: 6px;
+      overflow-x: auto;
+      font-size: 0.8rem;
+      margin-top: 10px;
+      max-height: 200px;
+    }
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.8);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 2000;
+    }
+    .modal-box {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      padding: 20px;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 400px;
+    }
+  </style>
 </head>
 <body>
 
+<header class="fixed-header">
+  <div class="header-title" onclick="showListPage()" style="cursor:pointer;">Tab & Chord Logger</div>
+  <div class="header-actions">
+    <button id="btn-save" class="btn-sync" onclick="executeSave()">💾 保存</button>
+    <button id="btn-gh-save" class="btn-github" onclick="saveToGitHub()" title="GitHubリポジトリのJSONに自動保存">🐙 GitHub保存</button>
+    <button class="btn-secondary" onclick="openGitHubSettings()" title="GitHub設定">⚙️</button>
+  </div>
+</header>
+
 <div class="container">
-  <div class="control-panel">
-    <div class="input-row">
-      <input type="text" id="chordInput" value="B A# A G">
-      <button type="button" id="generateBtn">コード表を表示</button>
-      <button type="button" class="secondary-btn" id="addEmptyBtn">＋ 空の指板を追加</button>
-      <button type="button" class="secondary-btn" onclick="window.print()">印刷</button>
+  <div id="sync-status" class="sync-status-bar">🔄 接続確認中...</div>
+
+  <!-- 曲一覧ページ -->
+  <div id="page-list" class="page active">
+    <div class="top-controls">
+      <button class="btn-add" onclick="createNewSong()">＋ 追加</button>
+      <input type="text" id="search-box" class="search-input" placeholder="検索 (歌手名 or 曲名)" oninput="filterSongs()">
     </div>
+    <ul id="song-list-container" class="song-list"></ul>
   </div>
 
-  <div id="boardGrid" class="board-grid"></div>
+  <!-- 曲編集ページ -->
+  <div id="page-edit" class="page">
+    <button class="btn-secondary" onclick="showListPage()" style="margin-bottom: 12px;">← 曲一覧に戻る</button>
+    <div class="app-content">
+      
+      <div class="grid-2col form-group">
+        <div>
+          <label for="song-artist">歌手名：</label>
+          <input type="text" id="song-artist" placeholder="例: Official髭男dism">
+        </div>
+        <div>
+          <label for="song-title">曲名：</label>
+          <input type="text" id="song-title" placeholder="例: Subtitle">
+        </div>
+      </div>
+
+      <div class="grid-3col form-group">
+        <div>
+          <label for="song-bpm">BPM：</label>
+          <input type="number" id="song-bpm" value="120">
+        </div>
+        <div>
+          <label for="song-tuning">チューニング：</label>
+          <input type="text" id="song-tuning" value="Standard">
+        </div>
+        <div>
+          <label for="song-capo">capo：</label>
+          <input type="number" id="song-capo" value="0">
+        </div>
+      </div>
+
+      <!-- 🎸 ギターコードフォーム表セクション -->
+      <div class="chord-form-section">
+        <div class="chord-form-header">
+          <span>🎸 ギターコードフォーム表ビルダー</span>
+        </div>
+        <div class="chord-input-row">
+          <input type="text" id="chord-form-input" placeholder="例: B A# A G / C Am F G7" value="B A# A G" onkeydown="if(event.key==='Enter') generateChordFormsFromInput()">
+          <button type="button" class="btn-add" onclick="generateChordFormsFromInput()">フォーム生成</button>
+          <button type="button" class="btn-secondary" onclick="addEmptyChordCard()">＋ 空指板</button>
+        </div>
+        <div id="chord-cards-container" class="board-grid"></div>
+      </div>
+
+      <hr style="border: 0.5px solid var(--border-color); margin: 20px 0;">
+
+      <div id="sections-container"></div>
+
+      <button type="button" class="btn-add" onclick="addSection()" style="width: 100%; padding: 10px; margin-top: 10px;">
+        新しいセクション追加
+      </button>
+
+      <div style="margin-top: 25px;">
+        <button type="button" class="btn-secondary" onclick="generateAsciiTab()" style="width: 100%;">
+          📄 テキスト生成 (TuxGuitar / ASCII形式)
+        </button>
+        <div id="ascii-output-container" style="display: none;">
+          <div class="ascii-output" id="ascii-text"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ⚙️ GitHub連携設定モーダル -->
+<div id="github-modal" class="modal-overlay">
+  <div class="modal-box">
+    <h3 style="margin-top:0;">⚙️ GitHub連携設定</h3>
+    <div class="form-group">
+      <label>GitHub ユーザー名：</label>
+      <input type="text" value="yunio-omaru" readonly style="opacity: 0.7;">
+    </div>
+    <div class="form-group">
+      <label>リポジトリ名：</label>
+      <input type="text" id="gh-repo" value="tab-logger" readonly style="opacity: 0.7;">
+    </div>
+    <div class="form-group">
+      <label>保存ファイルパス：</label>
+      <input type="text" id="gh-filepath" value="backup.json">
+    </div>
+    <div class="form-group">
+      <label>Personal Access Token (PAT)：</label>
+      <input type="password" id="gh-token" placeholder="ghp_xxxxxxxxxxxx">
+    </div>
+    <div style="display:flex; justify-content: flex-end; gap: 8px; margin-top: 15px;">
+      <button class="btn-secondary" onclick="closeGitHubSettings()">キャンセル</button>
+      <button class="btn-add" onclick="saveGitHubSettings()">設定を保存</button>
+    </div>
+  </div>
 </div>
 
 <script>
-const NOTE_TO_SEMI = { "C": 0, "C#": 1, "Db": 1, "D": 2, "D#": 3, "Eb": 3, "E": 4, "F": 5, "F#": 6, "Gb": 6, "G": 7, "G#": 8, "Ab": 8, "A": 9, "A#": 10, "Bb": 10, "B": 11 };
-const FORM_TEMPLATES = {
-  "5_M": { label: "5弦ルート (A型)", root: 5, offsets: [0, 2, 2, 2, 0, "x"] },
-  "5_m": { label: "5弦ルート (Am型)", root: 5, offsets: [0, 1, 2, 2, 0, "x"] },
-  "5_7": { label: "5弦ルート (A7型)", root: 5, offsets: [0, 2, 0, 2, 0, "x"] },
-  "5_M7": { label: "5弦ルート (AM7型)", root: 5, offsets: [0, 2, 1, 2, 0, "x"] },
-  "5_m7": { label: "5弦ルート (Am7型)", root: 5, offsets: [0, 1, 0, 2, 0, "x"] },
-  "5_6": { label: "5弦ルート (A6型)", root: 5, offsets: [2, 2, 2, 2, 0, "x"] },
-  "5_add9": { label: "5弦ルート (Aadd9型)", root: 5, offsets: [0, 0, 2, 2, 0, "x"] },
-  "5_sus4": { label: "5弦ルート (Asus4型)", root: 5, offsets: [0, 3, 2, 2, 0, "x"] },
-  "5_dim": { label: "5弦ルート (Adim型)", root: 5, offsets: [0, 1, 2, 1, 0, "x"] },
-  "5_m7b5": { label: "5弦ルート (Am7b5型)", root: 5, offsets: ["x", 1, 0, 1, 0, "x"] },
+// 🔗 GASのWebアプリURL（既存構造保持）
+const GAS_API_URL = "https://script.google.com/macros/s/AKfycby_ryGNAlu3Z8K_5Qd2IDWNQmnEst0zDvEVCcu2ybQB-Fxbz3pOo690gK-kdCEzzwRt/exec";
+const GITHUB_USER = "yunio-omaru";
+const GITHUB_REPO = "tab-logger";
 
-  "6_M": { label: "6弦ルート (E型)", root: 6, offsets: [0, 0, 1, 2, 2, 0] },
-  "6_m": { label: "6弦ルート (Em型)", root: 6, offsets: [0, 0, 0, 2, 2, 0] },
-  "6_7": { label: "6弦ルート (E7型)", root: 6, offsets: [0, 0, 1, 0, 2, 0] },
-  "6_M7": { label: "6弦ルート (EM7型)", root: 6, offsets: [0, 0, 1, 1, 2, 0] },
-  "6_m7": { label: "6弦ルート (Em7型)", root: 6, offsets: [0, 0, 0, 0, 2, 0] },
-  "6_6": { label: "6弦ルート (E6型)", root: 6, offsets: [0, 2, 1, 2, 2, 0] },
-  "6_add9": { label: "6弦ルート (Eadd9型)", root: 6, offsets: [2, 0, 1, 2, 2, 0] },
-  "6_sus4": { label: "6弦ルート (Esus4型)", root: 6, offsets: [0, 0, 2, 2, 2, 0] },
-  "6_dim": { label: "6弦ルート (Edim型)", root: 6, offsets: ["x", 2, 0, 2, 1, 0] },
-  "6_m7b5": { label: "6弦ルート (Em7b5型)", root: 6, offsets: ["x", 0, 0, 0, 1, 0] }
+const NOTE_OPTIONS = ["e", "E", "D#", "Eb", "D", "C#", "Db", "C", "B", "A#", "Ab", "A", "G#", "G", "F#", "Gb", "F"];
+const CHROMATIC_SCALE = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+const NOTE_TO_INDEX = { "C":0, "C#":1, "DB":1, "D":2, "D#":3, "EB":3, "E":4, "F":5, "F#":6, "GB":6, "G":7, "G#":8, "AB":8, "A":9, "A#":10, "BB":10, "B":11 };
+const MAJOR_SCALE_INTERVALS = [0, 2, 4, 5, 7, 9, 11];
+
+let appData = {
+  songs: [],
+  master: {}
+};
+
+let currentSongId = null;
+const DEFAULT_TUNING = ["e", "B", "G", "D", "A", "E"];
+
+// 🎸 コードフォーム表用のデータおよび定義
+const NOTE_TO_SEMI = { "C": 0, "B#": 0, "C#": 1, "Db": 1, "D": 2, "D#": 3, "Eb": 3, "E": 4, "Fb": 4, "F": 5, "E#": 5, "F#": 6, "Gb": 6, "G": 7, "G#": 8, "Ab": 8, "A": 9, "A#": 10, "Bb": 10, "B": 11, "Cb": 11 };
+const STRING5_OPEN = 9;
+const STRING6_OPEN = 4;
+
+const FORM_TEMPLATES = {
+  "5_M":     { label: "5弦ルート (A型)",     rootString: 5, offsets: [0, 2, 2, 2, 0, "x"] },
+  "5_m":     { label: "5弦ルート (Am型)",    rootString: 5, offsets: [0, 1, 2, 2, 0, "x"] },
+  "5_7":     { label: "5弦ルート (A7型)",    rootString: 5, offsets: [0, 2, 0, 2, 0, "x"] },
+  "5_M7":    { label: "5弦ルート (AM7型)",   rootString: 5, offsets: [0, 2, 1, 2, 0, "x"] },
+  "5_m7":    { label: "5弦ルート (Am7型)",   rootString: 5, offsets: [0, 1, 0, 2, 0, "x"] },
+  "5_6":     { label: "5弦ルート (A6型)",    rootString: 5, offsets: [2, 2, 2, 2, 0, "x"] },
+  "5_add9":  { label: "5弦ルート (Aadd9型)", rootString: 5, offsets: [0, 0, 2, 2, 0, "x"] },
+  "5_sus4":  { label: "5弦ルート (Asus4型)", rootString: 5, offsets: [0, 3, 2, 2, 0, "x"] },
+  "5_dim":   { label: "5弦ルート (Adim型)",  rootString: 5, offsets: [0, 1, 2, 1, 0, "x"] },
+  "5_m7b5":  { label: "5弦ルート (Am7b5型)", rootString: 5, offsets: ["x", 1, 0, 1, 0, "x"] },
+
+  "6_M":     { label: "6弦ルート (E型)",     rootString: 6, offsets: [0, 0, 1, 2, 2, 0] },
+  "6_m":     { label: "6弦ルート (Em型)",    rootString: 6, offsets: [0, 0, 0, 2, 2, 0] },
+  "6_7":     { label: "6弦ルート (E7型)",    rootString: 6, offsets: [0, 0, 1, 0, 2, 0] },
+  "6_M7":    { label: "6弦ルート (EM7型)",   rootString: 6, offsets: [0, 0, 1, 1, 2, 0] },
+  "6_m7":    { label: "6弦ルート (Em7型)",   rootString: 6, offsets: [0, 0, 0, 0, 2, 0] },
+  "6_6":     { label: "6弦ルート (E6型)",    rootString: 6, offsets: [0, 2, 1, 2, 2, 0] },
+  "6_add9":  { label: "6弦ルート (Eadd9型)", rootString: 6, offsets: [2, 0, 1, 2, 2, 0] },
+  "6_sus4":  { label: "6弦ルート (Esus4型)", rootString: 6, offsets: [0, 0, 2, 2, 2, 0] },
+  "6_dim":   { label: "6弦ルート (Edim型)",  rootString: 6, offsets: ["x", 2, 0, 2, 1, 0] },
+  "6_m7b5":  { label: "6弦ルート (Em7b5型)", rootString: 6, offsets: ["x", 0, 0, 0, 1, 0] }
 };
 
 const OPEN_CHORDS = {
-  "C": [{ label: "オープンフォーム", frets: [0, 1, 0, 2, 3, "x"] }],
-  "G": [{ label: "オープンフォーム", frets: [3, 0, 0, 0, 2, 3] }],
-  "D": [{ label: "オープンフォーム", frets: [2, 3, 2, 0, "x", "x"] }],
-  "Dm": [{ label: "オープンフォーム", frets: [1, 3, 2, 0, "x", "x"] }],
-  "E": [{ label: "オープンフォーム", frets: [0, 0, 1, 2, 2, 0] }],
-  "Em": [{ label: "オープンフォーム", frets: [0, 0, 0, 2, 2, 0] }]
+  "C":     [{ label: "オープンフォーム", frets: [0, 1, 0, 2, 3, "x"] }],
+  "CM7":   [{ label: "オープンフォーム", frets: [0, 0, 0, 2, 3, "x"] }],
+  "C7":    [{ label: "オープンフォーム", frets: [0, 1, 3, 2, 3, "x"] }],
+  "Cadd9": [{ label: "オープンフォーム", frets: [3, 3, 0, 2, 3, "x"] }],
+  "D":     [{ label: "オープンフォーム", frets: [2, 3, 2, 0, "x", "x"] }],
+  "Dm":    [{ label: "オープンフォーム", frets: [1, 3, 2, 0, "x", "x"] }],
+  "D7":    [{ label: "オープンフォーム", frets: [2, 1, 2, 0, "x", "x"] }],
+  "DM7":   [{ label: "オープンフォーム", frets: [2, 2, 2, 0, "x", "x"] }],
+  "Dm7":   [{ label: "オープンフォーム", frets: [1, 1, 2, 0, "x", "x"] }],
+  "G":     [{ label: "オープンフォーム", frets: [3, 0, 0, 0, 2, 3] }],
+  "G7":    [{ label: "オープンフォーム", frets: [1, 0, 0, 0, 2, 3] }],
+  "GM7":   [{ label: "オープンフォーム", frets: [2, 0, 0, 0, 2, 3] }],
+  "B7":    [{ label: "オープンフォーム", frets: [2, 0, 2, 1, 2, "x"] }]
 };
 
-let cards = [];
-let nextId = 1;
+let chordFormCards = [];
 
-function parseChord(str) {
-  str = str.trim().replace(/♭/g, "b").replace(/♯/g, "#");
-  const m = str.match(/^([A-G][#b]?)(.*)$/);
-  if (!m) return null;
-  let root = m[1];
-  let suf = m[2] || "M";
-  if (suf === "maj") suf = "M";
-  return { root, suffix: suf, norm: root + (suf === "M" ? "" : suf) };
+let isMouseDown = false;
+let startCell = null;
+let currentSelection = [];
+let copiedMatrix = [];
+
+document.addEventListener('DOMContentLoaded', () => {
+  loadFromSpreadsheet();
+  setupGlobalCopyPasteEvents();
+  loadGitHubConfig();
+});
+
+// 🎸 フォーム解析・生成ロジック
+function parseChordName(raw) {
+  if (!raw) return null;
+  const cleaned = raw.trim().replace(/♭/g, "b").replace(/♯/g, "#").replace(/△/g, "M").replace(/maj/g, "M");
+  const match = cleaned.match(/^([A-G][#b]?)(.*)$/);
+  if (!match) return null;
+
+  const root = match[1];
+  let suffix = match[2];
+
+  if (suffix === "" || suffix === "M") suffix = "M";
+  else if (suffix === "m" || suffix === "min") suffix = "m";
+  else if (suffix === "7") suffix = "7";
+  else if (suffix === "M7") suffix = "M7";
+  else if (suffix === "m7" || suffix === "min7") suffix = "m7";
+  else if (suffix === "6") suffix = "6";
+  else if (suffix === "add9") suffix = "add9";
+  else if (suffix === "sus4") suffix = "sus4";
+  else if (suffix === "dim" || suffix === "dim7") suffix = "dim";
+  else if (suffix === "m7b5" || suffix === "m7-5" || suffix === "ø") suffix = "m7b5";
+  else suffix = "M";
+
+  return { root, suffix, normalized: root + (suffix === "M" ? "" : suffix) };
 }
 
-function getVariants(chordStr) {
-  const p = parseChord(chordStr);
-  if (!p) return [];
-  const rootSemi = NOTE_TO_SEMI[p.root] || 0;
-  const f5 = (rootSemi - 9 + 12) % 12;
-  const f6 = (rootSemi - 4 + 12) % 12;
-  const list = [];
+function getChordVariants(chordStr) {
+  const parsed = parseChordName(chordStr);
+  if (!parsed) return [];
 
-  const t5 = FORM_TEMPLATES["5_" + p.suffix];
-  const t6 = FORM_TEMPLATES["6_" + p.suffix];
-  const open = OPEN_CHORDS[p.norm] || [];
+  const { root, suffix, normalized } = parsed;
+  const rootSemi = NOTE_TO_SEMI[root];
+  if (rootSemi === undefined) return [];
 
-  if (t5) list.push({ label: t5.label + " (" + f5 + "F)", frets: t5.offsets.map(o => o === "x" ? "x" : f5 + o) });
-  if (t6) list.push({ label: t6.label + " (" + f6 + "F)", frets: t6.offsets.map(o => o === "x" ? "x" : f6 + o) });
-  open.forEach(o => list.push({ label: o.label, frets: o.frets.slice() }));
+  const variants = [];
+  const fret5 = (rootSemi - STRING5_OPEN + 12) % 12;
+  const fret6 = (rootSemi - STRING6_OPEN + 12) % 12;
 
-  if (list.length === 0) {
-    list.push({ label: "デフォルト", frets: [0, 0, 0, 0, 0, "x"] });
+  const tmpl5 = FORM_TEMPLATES["5_" + suffix];
+  const tmpl6 = FORM_TEMPLATES["6_" + suffix];
+
+  const makeVariant = (tmpl, baseFret) => {
+    const frets = tmpl.offsets.map(off => (off === "x" ? "x" : baseFret + off));
+    return {
+      label: `${tmpl.label} (${tmpl.rootString}弦${baseFret}F)`,
+      frets
+    };
+  };
+
+  const openList = OPEN_CHORDS[normalized] || [];
+
+  if (fret6 === 0 && tmpl6) {
+    variants.push(makeVariant(tmpl6, 0));
+    if (tmpl5) variants.push(makeVariant(tmpl5, fret5));
+  } else if (openList.length > 0 && (root === "G" || root === "C" || root === "D")) {
+    for (const o of openList) variants.push({ label: o.label, frets: [...o.frets] });
+    if (tmpl5) variants.push(makeVariant(tmpl5, fret5));
+    if (tmpl6) variants.push(makeVariant(tmpl6, fret6));
+  } else {
+    if (tmpl5) variants.push(makeVariant(tmpl5, fret5));
+    if (tmpl6) variants.push(makeVariant(tmpl6, fret6));
+    for (const o of openList) variants.push({ label: o.label, frets: [...o.frets] });
   }
-  return list;
+
+  if (variants.length === 0 && tmpl5) variants.push(makeVariant(tmpl5, fret5));
+  return variants;
 }
 
-function createCard(chordName) {
-  const vars = getVariants(chordName);
-  const card = { id: nextId++, chordName, variants: vars, variantIdx: 0, startFret: 1, strings: [] };
-  applyVariant(card, 0);
+function calcStartFret(frets) {
+  const nums = frets.filter(f => typeof f === "number" && f > 0);
+  if (nums.length === 0) return 1;
+  const maxF = Math.max(...nums);
+  return maxF <= 4 ? 1 : Math.min(...nums);
+}
+
+function createChordCard(chordName) {
+  const variants = getChordVariants(chordName);
+  const card = {
+    chordName: chordName.trim(),
+    variants,
+    variantIndex: 0,
+    startFret: 1,
+    strings: Array.from({ length: 6 }, () => ({ state: "none", fret: null, manual: false }))
+  };
+  if (variants.length > 0) applyVariantToChordCard(card, 0);
   return card;
 }
 
-function applyVariant(card, idx) {
-  if (!card.variants[idx]) return;
-  card.variantIdx = idx;
-  const frets = card.variants[idx].frets;
-  const nums = frets.filter(f => typeof f === "number" && f > 0);
-  card.startFret = nums.length ? Math.min(...nums) : 1;
-  if (card.startFret > 4) card.startFret = Math.min(...nums);
-  else card.startFret = 1;
+function addEmptyChordCard() {
+  chordFormCards.push({
+    chordName: "",
+    variants: [],
+    variantIndex: 0,
+    startFret: 1,
+    strings: Array.from({ length: 6 }, () => ({ state: "none", fret: null, manual: false }))
+  });
+  renderChordCardsUI();
+}
 
+function applyVariantToChordCard(card, variantIndex) {
+  if (!card.variants || !card.variants[variantIndex]) return;
+  card.variantIndex = variantIndex;
+  const frets = card.variants[variantIndex].frets;
+  card.startFret = calcStartFret(frets);
   card.strings = frets.map(f => {
     if (f === "x") return { state: "mute", fret: null, manual: false };
     if (f === 0) return { state: "open", fret: 0, manual: false };
@@ -327,95 +804,136 @@ function applyVariant(card, idx) {
   });
 }
 
-function render() {
-  const grid = document.getElementById("boardGrid");
-  if (!grid) return;
-  grid.innerHTML = "";
+function generateChordFormsFromInput() {
+  const text = document.getElementById('chord-form-input').value;
+  const tokens = text.split(/[\s,、]+/).filter(Boolean);
+  if (tokens.length === 0) {
+    chordFormCards = [createChordCard("")];
+  } else {
+    chordFormCards = [];
+    for (const t of tokens) {
+      chordFormCards.push(createChordCard(t));
+    }
+  }
+  renderChordCardsUI();
+}
 
-  cards.forEach((card, cIdx) => {
+function renderChordCardsUI() {
+  const container = document.getElementById('chord-cards-container');
+  if (!container) return;
+  container.innerHTML = "";
+
+  for (let cIdx = 0; cIdx < chordFormCards.length; cIdx++) {
+    const card = chordFormCards[cIdx];
     const el = document.createElement("div");
     el.className = "chord-card";
 
-    // 上部ボタン
-    const top = document.createElement("div");
-    top.className = "card-top-actions";
-    
+    // 上部 ＋ / － ボタン
+    const topActions = document.createElement("div");
+    topActions.className = "card-top-actions";
+
     const addBtn = document.createElement("button");
+    addBtn.type = "button";
     addBtn.className = "mini-btn";
     addBtn.textContent = "+";
-    addBtn.onclick = () => { cards.splice(cIdx + 1, 0, { id: nextId++, chordName: "", variants: [], variantIdx: 0, startFret: 1, strings: Array(6).fill({state:"none", fret:null, manual:false}) }); render(); };
-    
-    const delBtn = document.createElement("button");
-    delBtn.className = "mini-btn";
-    delBtn.textContent = "-";
-    delBtn.onclick = () => { cards.splice(cIdx, 1); if (!cards.length) cards.push({ id: nextId++, chordName: "", variants: [], variantIdx: 0, startFret: 1, strings: Array(6).fill({state:"none", fret:null, manual:false}) }); render(); };
-    
-    top.append(addBtn, delBtn);
-    el.appendChild(top);
+    addBtn.onclick = () => {
+      chordFormCards.splice(cIdx + 1, 0, createChordCard(""));
+      renderChordCardsUI();
+    };
+
+    const removeBtn = document.createElement("button");
+    removeBtn.type = "button";
+    removeBtn.className = "mini-btn";
+    removeBtn.textContent = "-";
+    removeBtn.onclick = () => {
+      chordFormCards.splice(cIdx, 1);
+      if (chordFormCards.length === 0) chordFormCards.push(createChordCard(""));
+      renderChordCardsUI();
+    };
+
+    topActions.append(addBtn, removeBtn);
+    el.appendChild(topActions);
 
     // ヘッダー
     const header = document.createElement("div");
-    header.className = "chord-header";
-    
-    const info = document.createElement("div");
+    header.className = "chord-card-header";
+
+    const leftInfo = document.createElement("div");
     const nameInput = document.createElement("input");
     nameInput.type = "text";
-    nameInput.className = "chord-name-input";
+    nameInput.className = "chord-name-field";
     nameInput.value = card.chordName;
+    nameInput.placeholder = "コード";
     nameInput.onchange = (e) => {
       card.chordName = e.target.value.trim();
-      card.variants = getVariants(card.chordName);
-      if (card.variants.length) applyVariant(card, 0);
-      render();
+      card.variants = getChordVariants(card.chordName);
+      if (card.variants.length > 0) applyVariantToChordCard(card, 0);
+      renderChordCardsUI();
     };
 
     const badge = document.createElement("span");
     badge.className = "variant-badge";
-    badge.textContent = card.variants[card.variantIdx] ? card.variants[card.variantIdx].label : "";
-    
-    info.append(nameInput, badge);
+    badge.textContent = (card.variants && card.variants[card.variantIndex]) ? card.variants[card.variantIndex].label : "";
+
+    leftInfo.append(nameInput, badge);
 
     const dropBtn = document.createElement("button");
+    dropBtn.type = "button";
     dropBtn.className = "dropdown-btn";
     dropBtn.textContent = "▼";
-    
+
     const menu = document.createElement("div");
     menu.className = "dropdown-menu";
-    card.variants.forEach((v, vIdx) => {
-      const item = document.createElement("div");
-      item.className = "dropdown-item" + (vIdx === card.variantIdx ? " active" : "");
-      item.textContent = v.label;
-      item.onclick = (ev) => { ev.stopPropagation(); applyVariant(card, vIdx); render(); };
-      menu.appendChild(item);
-    });
+
+    if (card.variants && card.variants.length > 0) {
+      for (let vIdx = 0; vIdx < card.variants.length; vIdx++) {
+        const v = card.variants[vIdx];
+        const item = document.createElement("div");
+        item.className = "dropdown-item" + (vIdx === card.variantIndex ? " active" : "");
+        item.textContent = v.label;
+        item.onclick = (ev) => {
+          ev.stopPropagation();
+          applyVariantToChordCard(card, vIdx);
+          renderChordCardsUI();
+        };
+        menu.appendChild(item);
+      }
+    } else {
+      const emptyItem = document.createElement("div");
+      emptyItem.className = "dropdown-item";
+      emptyItem.textContent = "候補なし";
+      menu.appendChild(emptyItem);
+    }
 
     dropBtn.onclick = (ev) => {
       ev.stopPropagation();
-      document.querySelectorAll(".dropdown-menu.open").forEach(m => { if (m !== menu) m.classList.remove("open"); });
+      document.querySelectorAll(".dropdown-menu.open").forEach(m => {
+        if (m !== menu) m.classList.remove("open");
+      });
       menu.classList.toggle("open");
     };
 
-    header.append(info, dropBtn, menu);
+    header.append(leftInfo, dropBtn, menu);
     el.appendChild(header);
 
-    // 指板
+    // 指板本体
     const wrapper = document.createElement("div");
     wrapper.className = "fretboard-wrapper";
 
-    const sLabel = document.createElement("div");
-    sLabel.className = "start-fret-label";
-    sLabel.textContent = card.startFret > 1 ? card.startFret : "";
-    wrapper.appendChild(sLabel);
+    const startLabel = document.createElement("div");
+    startLabel.className = "start-fret-label";
+    startLabel.textContent = card.startFret > 1 ? card.startFret : "";
+    wrapper.appendChild(startLabel);
 
     const table = document.createElement("table");
-    table.className = "fretboard";
+    table.className = "fretboard-table";
 
     const numRow = document.createElement("tr");
     numRow.className = "fret-num-row";
     numRow.appendChild(document.createElement("td"));
-    for (let f = 0; f < 4; f++) {
+    for (let col = 0; col < 4; col++) {
       const td = document.createElement("td");
-      td.textContent = (card.startFret + f) + "F";
+      td.textContent = (card.startFret + col) + "F";
       numRow.appendChild(td);
     }
     table.appendChild(numRow);
@@ -436,12 +954,12 @@ function render() {
         if (sData.state === "open") card.strings[s] = { state: "mute", fret: null, manual: true };
         else if (sData.state === "mute") card.strings[s] = { state: "none", fret: null, manual: true };
         else card.strings[s] = { state: "open", fret: 0, manual: true };
-        render();
+        renderChordCardsUI();
       };
       tr.appendChild(openTd);
 
-      for (let f = 0; f < 4; f++) {
-        const fretNum = card.startFret + f;
+      for (let col = 0; col < 4; col++) {
+        const fretNum = card.startFret + col;
         const fTd = document.createElement("td");
         fTd.className = "fret-cell";
         if (sData.state === "fret" && sData.fret === fretNum) {
@@ -455,7 +973,7 @@ function render() {
           } else {
             card.strings[s] = { state: "fret", fret: fretNum, manual: true };
           }
-          render();
+          renderChordCardsUI();
         };
         tr.appendChild(fTd);
       }
@@ -466,62 +984,1022 @@ function render() {
 
     // フッター
     const footer = document.createElement("div");
-    footer.className = "card-footer";
-    const shift = document.createElement("div");
-    
+    footer.className = "chord-card-footer";
+
+    const shiftWrap = document.createElement("div");
     const pBtn = document.createElement("button");
-    pBtn.className = "mini-btn"; pBtn.textContent = "◀";
-    pBtn.onclick = () => { if (card.startFret > 1) { card.startFret--; render(); } };
-    
+    pBtn.type = "button";
+    pBtn.className = "mini-btn";
+    pBtn.textContent = "◀";
+    pBtn.onclick = () => { if (card.startFret > 1) { card.startFret--; renderChordCardsUI(); } };
+
     const nBtn = document.createElement("button");
-    nBtn.className = "mini-btn"; nBtn.textContent = "▶";
-    nBtn.onclick = () => { if (card.startFret < 12) { card.startFret++; render(); } };
-    
-    shift.append(pBtn, nBtn);
+    nBtn.type = "button";
+    nBtn.className = "mini-btn";
+    nBtn.textContent = "▶";
+    nBtn.onclick = () => { if (card.startFret < 12) { card.startFret++; renderChordCardsUI(); } };
 
-    const clr = document.createElement("button");
-    clr.className = "mini-btn"; clr.textContent = "クリア";
-    clr.style.width = "auto"; clr.style.padding = "2px 6px";
-    clr.onclick = () => { card.strings = Array(6).fill({state:"none", fret:null, manual:true}); render(); };
+    shiftWrap.append(pBtn, nBtn);
 
-    footer.append(shift, clr);
+    const clrBtn = document.createElement("button");
+    clrBtn.type = "button";
+    clrBtn.className = "mini-btn";
+    clrBtn.style.width = "auto";
+    clrBtn.style.padding = "2px 6px";
+    clrBtn.textContent = "クリア";
+    clrBtn.onclick = () => {
+      card.strings = Array.from({ length: 6 }, () => ({ state: "none", fret: null, manual: true }));
+      renderChordCardsUI();
+    };
+
+    footer.append(shiftWrap, clrBtn);
     el.appendChild(footer);
 
-    grid.appendChild(el);
-  });
+    container.appendChild(el);
+  }
 }
 
+// ドロップダウン外クリックで閉じる
 document.addEventListener("click", () => {
   document.querySelectorAll(".dropdown-menu.open").forEach(m => m.classList.remove("open"));
 });
 
-function init() {
-  const genBtn = document.getElementById("generateBtn");
-  if (genBtn) {
-    genBtn.onclick = () => {
-      const val = document.getElementById("chordInput").value;
-      cards = val.split(/[\s,、]+/).filter(Boolean).map(t => createCard(t));
-      if (!cards.length) cards.push(createCard("C"));
-      render();
-    };
+// 既存の通信・保存・読み込みロジック (骨組み厳守)
+async function loadFromSpreadsheet() {
+  const statusLabel = document.getElementById('sync-status');
+  statusLabel.innerText = "🔄 スプレッドシートからデータを同期中...";
+  try {
+    const res = await fetch(GAS_API_URL);
+    if(res.ok) {
+      const data = await res.json();
+      if (data && data.songs) {
+        appData = data;
+      }
+      statusLabel.innerText = "✅ 同期完了";
+      renderApp();
+    } else {
+      statusLabel.innerText = "⚠️ データレスポンスエラー";
+      renderApp();
+    }
+  } catch(e) {
+    console.error(e);
+    statusLabel.innerText = "❌ 読み込み同期エラー";
+    renderApp();
   }
-  const addBtn = document.getElementById("addEmptyBtn");
-  if (addBtn) {
-    addBtn.onclick = () => {
-      cards.push({ id: nextId++, chordName: "", variants: [], variantIdx: 0, startFret: 1, strings: Array(6).fill({state:"none", fret:null, manual:false}) });
-      render();
-    };
-  }
-  // 初期読み込み
-  const val = document.getElementById("chordInput").value;
-  cards = val.split(/[\s,、]+/).filter(Boolean).map(t => createCard(t));
-  render();
 }
 
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", init);
-} else {
-  init();
+async function executeSave() {
+  const saveBtn = document.getElementById('btn-save');
+  saveBtn.disabled = true;
+  saveBtn.innerText = "⏳ 保存中...";
+  try {
+    collectFormData();
+    await saveToSpreadsheet();
+  } catch (e) {
+    console.error(e);
+    alert("保存処理でエラーが発生しました");
+  } finally {
+    saveBtn.disabled = false;
+    saveBtn.innerText = "💾 保存";
+  }
+}
+
+function openGitHubSettings() {
+  document.getElementById('github-modal').style.display = 'flex';
+}
+
+function closeGitHubSettings() {
+  document.getElementById('github-modal').style.display = 'none';
+}
+
+function loadGitHubConfig() {
+  document.getElementById('gh-filepath').value = localStorage.getItem('gh_filepath') || 'backup.json';
+  document.getElementById('gh-token').value = localStorage.getItem('gh_token') || '';
+}
+
+function saveGitHubSettings() {
+  const path = document.getElementById('gh-filepath').value.trim();
+  const token = document.getElementById('gh-token').value.trim();
+  localStorage.setItem('gh_filepath', path);
+  localStorage.setItem('gh_token', token);
+  alert("GitHub設定をブラウザに保存しました！");
+  closeGitHubSettings();
+}
+
+async function saveToGitHub() {
+  collectFormData();
+  const path = localStorage.getItem('gh_filepath') || 'backup.json';
+  const token = localStorage.getItem('gh_token');
+
+  if (!token) {
+    alert("GitHubのPersonal Access Tokenが未設定です。⚙️ ボタンから設定してください。");
+    openGitHubSettings();
+    return;
+  }
+
+  const btn = document.getElementById('btn-gh-save');
+  btn.disabled = true;
+  btn.innerText = "⏳ コミット中...";
+
+  try {
+    const url = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${path}`;
+    let sha = "";
+    const getRes = await fetch(url, { headers: { "Authorization": `token ${token}` } });
+    if (getRes.ok) {
+      const getJson = await getRes.json();
+      sha = getJson.sha;
+    }
+
+    const contentString = JSON.stringify(appData, null, 2);
+    const contentBase64 = btoa(unescape(encodeURIComponent(contentString)));
+
+    const bodyData = {
+      message: `Auto backup: ${new Date().toLocaleString('ja-JP')}`,
+      content: contentBase64
+    };
+    if (sha) bodyData.sha = sha;
+
+    const putRes = await fetch(url, {
+      method: "PUT",
+      headers: {
+        "Authorization": `token ${token}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(bodyData)
+    });
+
+    if (putRes.ok) {
+      alert(`✅ GitHub (${GITHUB_REPO}/${path}) にバックアップJSONを更新保存しました！`);
+    } else {
+      const errJson = await putRes.json();
+      alert(`❌ GitHub保存エラー: ${errJson.message}`);
+    }
+  } catch (e) {
+    console.error(e);
+    alert("❌ GitHub保存中にエラーが発生しました");
+  } finally {
+    btn.disabled = false;
+    btn.innerText = "🐙 GitHub保存";
+  }
+}
+
+// 📝 画面の入力値をappDataに集約する (拡張)
+function collectFormData() {
+  if (!currentSongId) return;
+
+  let song = null;
+  for (const s of appData.songs) {
+    if (s.id === currentSongId) {
+      song = s;
+      break;
+    }
+  }
+  if (!song) return;
+
+  song.artist = document.getElementById('song-artist').value;
+  song.title = document.getElementById('song-title').value;
+  song.bpm = document.getElementById('song-bpm').value;
+  song.tuning = document.getElementById('song-tuning').value;
+  song.capo = document.getElementById('song-capo').value;
+
+  // コードフォーム表のデータ保存
+  song.chordFormInputText = document.getElementById('chord-form-input').value;
+  song.chordFormCards = chordFormCards;
+
+  const sectionCards = document.querySelectorAll('.section-card');
+  const sections = [];
+
+  for (const sCard of sectionCards) {
+    const secId = sCard.dataset.sectionId;
+    const secName = sCard.querySelector('.section-name').value;
+    const memo = sCard.querySelector('.section-memo').value;
+
+    const chordInputs = sCard.querySelectorAll('.chord-input');
+    const chords = [];
+    for (const cIn of chordInputs) {
+      chords.push(cIn.value);
+    }
+
+    const partCards = sCard.querySelectorAll('.part-card');
+    const parts = [];
+
+    for (const pCard of partCards) {
+      const partId = pCard.dataset.partId;
+      const partName = pCard.querySelector('.part-name-input').value;
+
+      const rows = pCard.querySelectorAll('tbody tr');
+      const tuning = [];
+      const grid = {};
+
+      for (let rIdx = 0; rIdx < rows.length; rIdx++) {
+        const row = rows[rIdx];
+        const stringSelect = row.querySelector('.string-select');
+        tuning.push(stringSelect ? stringSelect.value : "E");
+
+        grid[rIdx] = [];
+        const inputs = row.querySelectorAll('.tab-input');
+        for (let step = 0; step < inputs.length; step++) {
+          grid[rIdx].push(inputs[step] ? inputs[step].value : "-");
+        }
+      }
+
+      parts.push({
+        id: partId,
+        name: partName,
+        tuning: tuning,
+        grid: grid
+      });
+    }
+
+    sections.push({
+      id: secId,
+      name: secName,
+      memo: memo,
+      chords: chords,
+      parts: parts
+    });
+  }
+
+  song.sections = sections;
+}
+
+// 💻 データを画面に描写する (拡張)
+function renderApp() {
+  renderSongList();
+  if (currentSongId) {
+    const song = appData.songs.find(s => s.id === currentSongId);
+    if (song) {
+      if (song.chordFormInputText !== undefined) {
+        document.getElementById('chord-form-input').value = song.chordFormInputText;
+      }
+      if (Array.isArray(song.chordFormCards) && song.chordFormCards.length > 0) {
+        chordFormCards = song.chordFormCards;
+      } else {
+        generateChordFormsFromInput();
+      }
+      renderChordCardsUI();
+    }
+  }
+}
+
+function renderSongList() {
+  const listEl = document.getElementById('song-list-container');
+  const keyword = document.getElementById('search-box').value.toLowerCase();
+  listEl.innerHTML = "";
+
+  for (const song of appData.songs) {
+    const matchArtist = (song.artist || "").toLowerCase().includes(keyword);
+    const matchTitle = (song.title || "").toLowerCase().includes(keyword);
+
+    if (matchArtist || matchTitle) {
+      const li = document.createElement('li');
+      li.className = 'song-item';
+      li.onclick = () => openEditPage(song.id);
+      li.innerHTML = `
+        <div>
+          <div class="song-artist">${song.artist || '（未設定の歌手）'}</div>
+          <div class="song-title-text">${song.title || '（無題の曲）'}</div>
+        </div>
+        <button class="btn-danger btn-sm" onclick="event.stopPropagation(); deleteSong('${song.id}')">削除</button>
+      `;
+      listEl.appendChild(li);
+    }
+  }
+}
+
+function filterSongs() {
+  renderSongList();
+}
+
+function showListPage() {
+  collectFormData();
+  document.getElementById('page-list').classList.add('active');
+  document.getElementById('page-edit').classList.remove('active');
+  renderSongList();
+}
+
+function createNewSong() {
+  const newSong = {
+    id: "song_" + Date.now(),
+    artist: "",
+    title: "",
+    bpm: 120,
+    tuning: "Standard",
+    capo: 0,
+    chordFormInputText: "B A# A G",
+    chordFormCards: [],
+    sections: []
+  };
+  appData.songs.unshift(newSong);
+  openEditPage(newSong.id);
+  generateChordFormsFromInput();
+  addSection("Aメロ");
+}
+
+function deleteSong(songId) {
+  if (confirm("この楽曲を削除しますか？")) {
+    appData.songs = appData.songs.filter(s => s.id !== songId);
+    renderSongList();
+  }
+}
+
+function openEditPage(songId) {
+  currentSongId = songId;
+  const song = appData.songs.find(s => s.id === songId);
+  if (!song) return;
+
+  document.getElementById('song-artist').value = song.artist || "";
+  document.getElementById('song-title').value = song.title || "";
+  document.getElementById('song-bpm').value = song.bpm || 120;
+  document.getElementById('song-tuning').value = song.tuning || "Standard";
+  document.getElementById('song-capo').value = song.capo || 0;
+
+  if (song.chordFormInputText !== undefined) {
+    document.getElementById('chord-form-input').value = song.chordFormInputText;
+  }
+  if (Array.isArray(song.chordFormCards) && song.chordFormCards.length > 0) {
+    chordFormCards = song.chordFormCards;
+  } else {
+    generateChordFormsFromInput();
+  }
+  renderChordCardsUI();
+
+  const secContainer = document.getElementById('sections-container');
+  secContainer.innerHTML = "";
+
+  for (const sec of (song.sections || [])) {
+    renderSectionUI(sec);
+  }
+
+  document.getElementById('page-list').classList.remove('active');
+  document.getElementById('page-edit').classList.add('active');
+  document.getElementById('ascii-output-container').style.display = 'none';
+}
+
+function getLastUsedTuning() {
+  const partCards = document.querySelectorAll('.part-card');
+  if (partCards.length > 0) {
+    const lastCard = partCards[partCards.length - 1];
+    const stringSelects = lastCard.querySelectorAll('.string-select');
+    if (stringSelects.length > 0) {
+      return Array.from(stringSelects).map(select => select.value);
+    }
+  }
+  return [...DEFAULT_TUNING];
+}
+
+function renderSectionUI(sec) {
+  const secContainer = document.getElementById('sections-container');
+  const secId = sec.id || "sec_" + Date.now() + "_" + Math.random().toString(36).substr(2, 4);
+
+  const card = document.createElement('div');
+  card.className = "section-card";
+  card.dataset.sectionId = secId;
+
+  let totalSteps = 8;
+  if (sec.chords && sec.chords.length > totalSteps) {
+    totalSteps = sec.chords.length;
+  }
+  if (sec.parts) {
+    for (const p of sec.parts) {
+      if (p.grid) {
+        for (const k in p.grid) {
+          if (Array.isArray(p.grid[k]) && p.grid[k].length > totalSteps) {
+            totalSteps = p.grid[k].length;
+          }
+        }
+      }
+    }
+  }
+
+  let chordCols = '<col class="control-col">';
+  let chordThs = "";
+  for (let i = 0; i < totalSteps; i++) {
+    chordCols += '<col class="chord-col">';
+    const val = (sec.chords && sec.chords[i]) ? sec.chords[i] : "";
+    chordThs += `<th class="chord-th"><div class="tab-input-wrapper"><input type="text" class="tab-input chord-input" data-step="${i}" placeholder="コード" value="${val}" oninput="checkAndExpandColumns(this)"></div></th>`;
+  }
+
+  card.innerHTML = `
+    <div class="part-header" style="margin-bottom:12px;">
+      <div style="display:flex; align-items:center;">
+        <input type="text" class="section-name" value="${sec.name || '新規セクション'}" style="font-weight:bold; font-size:1.05rem; width:50%;">
+        <span class="key-badge" id="key-badge-${secId}">Key: ?</span>
+      </div>
+      <button type="button" class="btn-danger btn-sm" onclick="removeSection('${secId}')">セクション削除</button>
+    </div>
+
+    <div class="tab-grid-wrapper">
+      <table class="tab-table">
+        <colgroup>${chordCols}</colgroup>
+        <thead>
+          <tr class="chord-header-row">
+            <th class="string-control-td">
+              Chord
+              <br><button type="button" class="btn-secondary btn-sm" style="font-size:0.65rem; padding:1px 4px; margin-top:2px;" onclick="detectAndSetChords('${secId}')">🪄 自動判定</button>
+            </th>
+            ${chordThs}
+          </tr>
+        </thead>
+      </table>
+    </div>
+
+    <div class="parts-container"></div>
+
+    <button type="button" class="btn-secondary btn-sm" onclick="addPartToSection('${secId}')" style="margin-top:8px;">
+      [＋] パート追加 (gt1, gt2等)
+    </button>
+
+    <div style="margin-top: 10px;">
+      <label style="font-size:0.8rem; color:var(--text-muted);">奏法メモ：</label>
+      <input type="text" class="section-memo" placeholder="例: 3ピッキング目からチョーキング" value="${sec.memo || ''}">
+    </div>
+  `;
+
+  secContainer.appendChild(card);
+
+  const partsContainer = card.querySelector('.parts-container');
+  const currentTuning = getLastUsedTuning();
+  const parts = (sec.parts && sec.parts.length > 0) ? sec.parts : [{ id: "part_" + Date.now(), name: "gt1", tuning: currentTuning, grid: {} }];
+  
+  for (let pIdx = 0; pIdx < parts.length; pIdx++) {
+    const prevPart = (pIdx > 0) ? parts[pIdx - 1] : null;
+    renderPartUI(partsContainer, parts[pIdx], prevPart, totalSteps);
+  }
+}
+
+function createNoteOptionsHtml(selectedNote) {
+  let html = "";
+  let options = [...NOTE_OPTIONS];
+  if (selectedNote && !options.includes(selectedNote)) {
+    options.unshift(selectedNote);
+  }
+  for (const note of options) {
+    const isSelected = (note === selectedNote) ? 'selected' : '';
+    html += `<option value="${note}" ${isSelected}>${note}</option>`;
+  }
+  return html;
+}
+
+function renderPartUI(partsContainer, part, prevPart = null, totalSteps = 8) {
+  const partId = part.id || "part_" + Date.now() + "_" + Math.random().toString(36).substr(2, 4);
+  const partCard = document.createElement('div');
+  partCard.className = "part-card";
+  partCard.dataset.partId = partId;
+
+  const tuning = part.tuning || getLastUsedTuning();
+
+  let tabCols = '<col class="control-col">';
+  for (let i = 0; i < totalSteps; i++) {
+    tabCols += '<col class="tab-cell-col">';
+  }
+
+  let tabRowsHtml = "";
+  for (let sIdx = 0; sIdx < tuning.length; sIdx++) {
+    tabRowsHtml += createStringRowHtml(sIdx, tuning[sIdx], part, prevPart, totalSteps);
+  }
+
+  partCard.innerHTML = `
+    <div class="part-header">
+      <div>
+        ＜<input type="text" class="part-name-input" value="${part.name || 'gt1'}">＞
+        <button type="button" class="btn-secondary btn-sm" onclick="appendStringBottom('${partId}')">＋ 弦追加</button>
+      </div>
+      <button type="button" class="btn-danger btn-sm" onclick="this.closest('.part-card').remove()">パート削除</button>
+    </div>
+
+    <div class="tab-grid-wrapper">
+      <table class="tab-table">
+        <colgroup>${tabCols}</colgroup>
+        <tbody>
+          ${tabRowsHtml}
+        </tbody>
+      </table>
+    </div>
+  `;
+
+  partsContainer.appendChild(partCard);
+}
+
+function createStringRowHtml(sIdx, stringNote, part, prevPart, totalSteps = 8) {
+  let tds = "";
+  for (let step = 0; step < totalSteps; step++) {
+    const val = (part && part.grid && part.grid[sIdx] && part.grid[sIdx][step]) ? part.grid[sIdx][step] : "-";
+    
+    let ghostVal = "";
+    if (prevPart && prevPart.grid && prevPart.grid[sIdx] && prevPart.grid[sIdx][step]) {
+      ghostVal = prevPart.grid[sIdx][step];
+      if (ghostVal === "-") ghostVal = "";
+    }
+
+    tds += `
+      <td class="tab-cell">
+        <div class="tab-input-wrapper">
+          <div class="tab-ghost">${ghostVal}</div>
+          <input type="text" class="tab-input" data-step="${step}" value="${val}" onchange="formatCapoInput(this)" oninput="updateGhostGuide(this); checkAndExpandColumns(this);">
+        </div>
+      </td>
+    `;
+  }
+
+  return `
+    <tr>
+      <td class="string-control-td">
+        <button type="button" class="btn-secondary btn-sm" style="padding:1px 3px; font-size:0.7rem;" onclick="removeSpecificRow(this)">✕</button>
+        <select class="string-select">
+          ${createNoteOptionsHtml(stringNote)}
+        </select>
+        <button type="button" class="btn-secondary btn-sm" style="padding:1px 3px; font-size:0.7rem;" onclick="insertStringRow(this)">＋</button>
+      </td>
+      ${tds}
+    </tr>
+  `;
+}
+
+function checkAndExpandColumns(inputEl) {
+  const sCard = inputEl.closest('.section-card');
+  if (!sCard) return;
+
+  const step = parseInt(inputEl.dataset.step, 10);
+  const chordRow = sCard.querySelector('.chord-header-row');
+  const currentTotalSteps = chordRow.querySelectorAll('th').length - 1;
+
+  if (step === currentTotalSteps - 1 && inputEl.value.trim() !== "" && inputEl.value.trim() !== "-") {
+    expandSectionStep(sCard, currentTotalSteps);
+  }
+}
+
+function expandSectionStep(sCard, newStepIdx) {
+  const chordTable = sCard.querySelector('.tab-grid-wrapper table');
+  const chordColgroup = chordTable.querySelector('colgroup');
+  if (chordColgroup) {
+    const col = document.createElement('col');
+    col.className = 'chord-col';
+    chordColgroup.appendChild(col);
+  }
+
+  const chordRow = sCard.querySelector('.chord-header-row');
+  const th = document.createElement('th');
+  th.className = "chord-th";
+  th.innerHTML = `<div class="tab-input-wrapper"><input type="text" class="tab-input chord-input" data-step="${newStepIdx}" placeholder="コード" value="" oninput="checkAndExpandColumns(this)"></div>`;
+  chordRow.appendChild(th);
+
+  const partCards = sCard.querySelectorAll('.part-card');
+  for (const pCard of partCards) {
+    const partTable = pCard.querySelector('.tab-grid-wrapper table');
+    const partColgroup = partTable.querySelector('colgroup');
+    if (partColgroup) {
+      const col = document.createElement('col');
+      col.className = 'tab-cell-col';
+      partColgroup.appendChild(col);
+    }
+
+    const rows = pCard.querySelectorAll('tbody tr');
+    for (const tr of rows) {
+      const td = document.createElement('td');
+      td.className = "tab-cell";
+      td.innerHTML = `
+        <div class="tab-input-wrapper">
+          <div class="tab-ghost"></div>
+          <input type="text" class="tab-input" data-step="${newStepIdx}" value="-" onchange="formatCapoInput(this)" oninput="updateGhostGuide(this); checkAndExpandColumns(this);">
+        </div>
+      `;
+      tr.appendChild(td);
+    }
+  }
+}
+
+function formatCapoInput(inputEl) {
+  const rawVal = inputEl.value.trim();
+  const capoVal = parseInt(document.getElementById('song-capo').value || "0", 10);
+  if (capoVal <= 0 || !rawVal || rawVal === "-") return;
+  if (/\d+\(\d+\)/.test(rawVal)) return;
+
+  const fretNum = parseInt(rawVal, 10);
+  if (!isNaN(fretNum) && fretNum > 0) {
+    const actualFret = fretNum + capoVal;
+    inputEl.value = `${fretNum}(${actualFret})`;
+  }
+}
+
+function parseNoteIndex(noteStr) {
+  if (!noteStr) return 0;
+  const cleanStr = noteStr.trim().toUpperCase();
+  return NOTE_TO_INDEX[cleanStr] !== undefined ? NOTE_TO_INDEX[cleanStr] : 0;
+}
+
+function detectSectionKey(sCard, capoVal) {
+  const noteHistogram = {};
+  CHROMATIC_SCALE.forEach(n => noteHistogram[n] = 0);
+
+  const partCards = sCard.querySelectorAll('.part-card');
+  for (const pCard of partCards) {
+    const rows = pCard.querySelectorAll('tbody tr');
+    for (const row of rows) {
+      const stringNote = row.querySelector('.string-select').value;
+      const inputs = row.querySelectorAll('.tab-input');
+      inputs.forEach(inp => {
+        if (!inp.value || inp.value === "-") return;
+        const match = inp.value.match(/^(\d+)/);
+        if (match) {
+          const fretVal = parseInt(match[1], 10);
+          const openIndex = parseNoteIndex(stringNote);
+          const absPitch = openIndex + fretVal + capoVal;
+          const noteName = CHROMATIC_SCALE[absPitch % 12];
+          noteHistogram[noteName] += 1;
+        }
+      });
+    }
+  }
+
+  let bestKey = "C";
+  let maxScore = -1;
+
+  for (let i = 0; i < 12; i++) {
+    const keyRoot = CHROMATIC_SCALE[i];
+    let score = 0;
+    MAJOR_SCALE_INTERVALS.forEach(interval => {
+      const scaleNote = CHROMATIC_SCALE[(i + interval) % 12];
+      score += noteHistogram[scaleNote];
+    });
+    if (score > maxScore) {
+      maxScore = score;
+      bestKey = keyRoot;
+    }
+  }
+  return bestKey;
+}
+
+function detectAndSetChords(secId) {
+  const sCard = document.querySelector(`.section-card[data-section-id="${secId}"]`);
+  if (!sCard) return;
+
+  const capoVal = parseInt(document.getElementById('song-capo').value || "0", 10);
+  const estimatedKey = detectSectionKey(sCard, capoVal);
+  const badge = document.getElementById(`key-badge-${secId}`);
+  if (badge) badge.innerText = `Key: ${estimatedKey}`;
+
+  const partCards = sCard.querySelectorAll('.part-card');
+  const chordInputs = sCard.querySelectorAll('.chord-input');
+  const totalSteps = chordInputs.length;
+
+  for (let step = 0; step < totalSteps; step++) {
+    const pitchSet = new Set();
+    let bassNoteName = "";
+
+    for (const pCard of partCards) {
+      const rows = Array.from(pCard.querySelectorAll('tbody tr'));
+      for (let rIdx = rows.length - 1; rIdx >= 0; rIdx--) {
+        const row = rows[rIdx];
+        const stringNote = row.querySelector('.string-select').value;
+        const inp = row.querySelector(`.tab-input[data-step="${step}"]`);
+        if (!inp || !inp.value || inp.value === "-") continue;
+
+        let fretVal = NaN;
+        const match = inp.value.match(/^(\d+)/);
+        if (match) fretVal = parseInt(match[1], 10);
+
+        if (!isNaN(fretVal)) {
+          const openIndex = parseNoteIndex(stringNote);
+          const absolutePitch = openIndex + fretVal + capoVal;
+          const noteName = CHROMATIC_SCALE[absolutePitch % 12];
+          pitchSet.add(noteName);
+
+          if (bassNoteName === "") bassNoteName = noteName;
+        }
+      }
+    }
+
+    if (pitchSet.size > 0) {
+      const detectedChord = analyzeAdvancedChordWithKey(Array.from(pitchSet), bassNoteName, estimatedKey);
+      if (chordInputs[step]) chordInputs[step].value = detectedChord;
+    }
+  }
+}
+
+function analyzeAdvancedChordWithKey(notes, bassNote, keyRoot) {
+  if (notes.length === 0) return "";
+  if (notes.length === 1) return notes[0];
+
+  const chordPatterns = [
+    { suffix: "m7", intervals: [3, 7, 10] },
+    { suffix: "maj7", intervals: [4, 7, 11] },
+    { suffix: "7", intervals: [4, 7, 10] },
+    { suffix: "m", intervals: [3, 7] },
+    { suffix: "", intervals: [4, 7] },
+    { suffix: "add9", intervals: [2, 4, 7] },
+    { suffix: "sus4", intervals: [5, 7] },
+    { suffix: "sus2", intervals: [2, 7] },
+    { suffix: "dim", intervals: [3, 6] },
+    { suffix: "5", intervals: [7] }
+  ];
+
+  let candidateChords = [];
+  for (const root of notes) {
+    const rootIdx = CHROMATIC_SCALE.indexOf(root);
+    const relativeIntervals = notes
+      .map(n => (CHROMATIC_SCALE.indexOf(n) - rootIdx + 12) % 12)
+      .filter(i => i !== 0)
+      .sort((a,b) => a - b);
+
+    for (const pat of chordPatterns) {
+      const isMatch = pat.intervals.every(i => relativeIntervals.includes(i));
+      if (isMatch) {
+        candidateChords.push({
+          root: root,
+          suffix: pat.suffix,
+          matchCount: pat.intervals.length,
+          isBassRoot: (root === bassNote)
+        });
+        break;
+      }
+    }
+  }
+
+  if (candidateChords.length > 0) {
+    candidateChords.sort((a, b) => {
+      if (a.isBassRoot !== b.isBassRoot) return a.isBassRoot ? -1 : 1;
+      return b.matchCount - a.matchCount;
+    });
+    const best = candidateChords[0];
+    const baseChordName = best.root + best.suffix;
+    if (bassNote && bassNote !== best.root) return `${baseChordName}/${bassNote}`;
+    return baseChordName;
+  }
+  return notes.join(",");
+}
+
+function updateGhostGuide(inputEl) {
+  const wrapper = inputEl.closest('.tab-input-wrapper');
+  const ghost = wrapper.querySelector('.tab-ghost');
+  if (inputEl.value && inputEl.value !== "-") {
+    ghost.style.display = 'none';
+  } else {
+    ghost.style.display = 'flex';
+  }
+}
+
+function setupGlobalCopyPasteEvents() {
+  document.addEventListener('mousedown', (e) => {
+    const cell = e.target.closest('td.tab-cell');
+    if (cell) {
+      isMouseDown = true;
+      startCell = cell;
+      clearSelection();
+      selectCellRange(startCell, cell);
+    } else {
+      if (!e.target.closest('.tab-table')) clearSelection();
+    }
+  });
+
+  document.addEventListener('mouseover', (e) => {
+    if (!isMouseDown || !startCell) return;
+    const cell = e.target.closest('td.tab-cell');
+    if (cell && cell.closest('tbody') === startCell.closest('tbody')) {
+      selectCellRange(startCell, cell);
+    }
+  });
+
+  document.addEventListener('mouseup', () => { isMouseDown = false; });
+
+  document.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'c') {
+      if (currentSelection.length > 0) copySelectionToClipboard();
+    }
+    if ((e.ctrlKey || e.metaKey) && e.key === 'v') {
+      if (currentSelection.length > 0 && copiedMatrix.length > 0) {
+        pasteClipboardToSelection();
+        e.preventDefault();
+      }
+    }
+  });
+}
+
+function clearSelection() {
+  for (const td of currentSelection) td.classList.remove('selected-cell');
+  currentSelection = [];
+}
+
+function selectCellRange(cellA, cellB) {
+  clearSelection();
+  const tbody = cellA.closest('tbody');
+  const rows = Array.from(tbody.querySelectorAll('tr'));
+  const rowA = cellA.closest('tr').rowIndex;
+  const colA = cellA.cellIndex;
+  const rowB = cellB.closest('tr').rowIndex;
+  const colB = cellB.cellIndex;
+
+  const minRow = Math.min(rowA, rowB), maxRow = Math.max(rowA, rowB);
+  const minCol = Math.min(colA, colB), maxCol = Math.max(colA, colB);
+
+  for (let r = minRow; r <= maxRow; r++) {
+    const tr = rows[r];
+    for (let c = minCol; c <= maxCol; c++) {
+      const td = tr.cells[c];
+      if (td && td.classList.contains('tab-cell')) {
+        td.classList.add('selected-cell');
+        currentSelection.push(td);
+      }
+    }
+  }
+}
+
+function copySelectionToClipboard() {
+  copiedMatrix = [];
+  if (currentSelection.length === 0) return;
+  const rowMap = {};
+  for (const td of currentSelection) {
+    const rIdx = td.closest('tr').rowIndex;
+    if (!rowMap[rIdx]) rowMap[rIdx] = [];
+    rowMap[rIdx].push(td);
+  }
+  const sortedRowKeys = Object.keys(rowMap).sort((a,b) => a - b);
+  for (const rKey of sortedRowKeys) {
+    const tds = rowMap[rKey].sort((a,b) => a.cellIndex - b.cellIndex);
+    const rowValues = tds.map(td => {
+      const inp = td.querySelector('.tab-input');
+      return inp ? inp.value : "-";
+    });
+    copiedMatrix.push(rowValues);
+  }
+}
+
+function pasteClipboardToSelection() {
+  if (copiedMatrix.length === 0 || currentSelection.length === 0) return;
+  const startTd = currentSelection[0];
+  const tbody = startTd.closest('tbody');
+  const rows = Array.from(tbody.querySelectorAll('tr'));
+  const startRowIdx = startTd.closest('tr').rowIndex;
+  const startColIdx = startTd.cellIndex;
+
+  for (let r = 0; r < copiedMatrix.length; r++) {
+    const targetRowIdx = startRowIdx + r;
+    if (targetRowIdx >= rows.length) break;
+    const tr = rows[targetRowIdx];
+    const rowData = copiedMatrix[r];
+    for (let c = 0; c < rowData.length; c++) {
+      const targetColIdx = startColIdx + c;
+      if (targetColIdx >= tr.cells.length) break;
+      const td = tr.cells[targetColIdx];
+      if (td && td.classList.contains('tab-cell')) {
+        const inp = td.querySelector('.tab-input');
+        if (inp) {
+          inp.value = rowData[c];
+          formatCapoInput(inp);
+          updateGhostGuide(inp);
+          checkAndExpandColumns(inp);
+        }
+      }
+    }
+  }
+}
+
+function addPartToSection(secId) {
+  const sCard = document.querySelector(`.section-card[data-section-id="${secId}"]`);
+  const chordRow = sCard.querySelector('.chord-header-row');
+  const totalSteps = chordRow.querySelectorAll('th').length - 1;
+  const partsContainer = sCard.querySelector('.parts-container');
+  const existingParts = partsContainer.querySelectorAll('.part-card');
+  const partCount = existingParts.length + 1;
+  
+  const currentTuning = getLastUsedTuning();
+  const newPart = { id: "part_" + Date.now(), name: "gt" + partCount, tuning: currentTuning, grid: {} };
+
+  let prevPartData = null;
+  if (existingParts.length > 0) {
+    const lastPartCard = existingParts[existingParts.length - 1];
+    prevPartData = { grid: {} };
+    const rows = lastPartCard.querySelectorAll('tbody tr');
+    for (let rIdx = 0; rIdx < rows.length; rIdx++) {
+      const inputs = rows[rIdx].querySelectorAll('.tab-input');
+      prevPartData.grid[rIdx] = [];
+      for (const inp of inputs) prevPartData.grid[rIdx].push(inp.value);
+    }
+  }
+  renderPartUI(partsContainer, newPart, prevPartData, totalSteps);
+}
+
+function insertStringRow(btnEl) {
+  const tr = btnEl.closest('tr');
+  const sCard = btnEl.closest('.section-card');
+  const chordRow = sCard.querySelector('.chord-header-row');
+  const totalSteps = chordRow.querySelectorAll('th').length - 1;
+  const action = prompt("弦の挿入位置:\n 1 : この弦の上に追加\n 2 : この弦の下に追加", "2");
+  if (action === "1" || action === "2") {
+    const newTr = document.createElement('tr');
+    newTr.innerHTML = createStringRowHtml(0, "E", null, null, totalSteps);
+    if (action === "1") tr.parentNode.insertBefore(newTr, tr);
+    else tr.parentNode.insertBefore(newTr, tr.nextSibling);
+  }
+}
+
+function appendStringBottom(partId) {
+  const pCard = document.querySelector(`.part-card[data-part-id="${partId}"]`);
+  const sCard = pCard.closest('.section-card');
+  const chordRow = sCard.querySelector('.chord-header-row');
+  const totalSteps = chordRow.querySelectorAll('th').length - 1;
+  const tbody = pCard.querySelector('tbody');
+  const newTr = document.createElement('tr');
+  newTr.innerHTML = createStringRowHtml(0, "E", null, null, totalSteps);
+  tbody.appendChild(newTr);
+}
+
+function removeSpecificRow(btnEl) {
+  const tr = btnEl.closest('tr');
+  const tbody = tr.parentNode;
+  if (tbody.querySelectorAll('tr').length <= 1) {
+    alert("パートには少なくとも1本の弦が必要です");
+    return;
+  }
+  if (confirm("この弦を削除しますか？")) tr.remove();
+}
+
+function addSection(defaultName = "新規セクション") {
+  const currentTuning = getLastUsedTuning();
+  const newSec = {
+    id: "sec_" + Date.now(),
+    name: defaultName,
+    memo: "",
+    chords: Array(8).fill(""),
+    parts: [{ id: "part_" + Date.now(), name: "gt1", tuning: currentTuning, grid: {} }]
+  };
+  renderSectionUI(newSec);
+}
+
+function removeSection(secId) {
+  const card = document.querySelector(`.section-card[data-section-id="${secId}"]`);
+  if (card && confirm("このセクションを削除しますか？")) card.remove();
+}
+
+function generateAsciiTab() {
+  collectFormData();
+  const song = appData.songs.find(s => s.id === currentSongId);
+  if (!song) return;
+
+  let ascii = `Artist: ${song.artist || 'Unknown'}\n`;
+  ascii += `Title: ${song.title || 'Untitled'}\n`;
+  ascii += `BPM: ${song.bpm} | Tuning: ${song.tuning} | CAPO: ${song.capo}\n`;
+  ascii += `===========================================\n\n`;
+
+  for (const sec of (song.sections || [])) {
+    ascii += `[${sec.name}]\n`;
+    if (sec.memo) ascii += `Memo: ${sec.memo}\n`;
+
+    if (sec.chords && sec.chords.some(c => c !== "")) {
+      ascii += `Chord: |`;
+      for (let i = 0; i < sec.chords.length; i++) {
+        ascii += ` ${(sec.chords[i] || '').padEnd(4, ' ')}|`;
+      }
+      ascii += `\n`;
+    }
+
+    for (const part of (sec.parts || [])) {
+      ascii += `<${part.name}>\n`;
+      const tuning = part.tuning || DEFAULT_TUNING;
+      for (let sIdx = 0; sIdx < tuning.length; sIdx++) {
+        let line = `${(tuning[sIdx] || 'E').padEnd(2, ' ')}|`;
+        const colCount = (part.grid[sIdx]) ? part.grid[sIdx].length : 8;
+        for (let step = 0; step < colCount; step++) {
+          let val = (part.grid[sIdx] && part.grid[sIdx][step]) ? part.grid[sIdx][step] : "-";
+          if (val === "") val = "-";
+          line += `-${val.toString().padEnd(3, '-')}`;
+        }
+        line += "|\n";
+        ascii += line;
+      }
+    }
+    ascii += "\n";
+  }
+
+  const container = document.getElementById('ascii-output-container');
+  const textEl = document.getElementById('ascii-text');
+  textEl.innerText = ascii;
+  container.style.display = 'block';
+
+  navigator.clipboard.writeText(ascii).then(() => {
+    alert("TuxGuitar / ASCII形式テキストをクリップボードにコピーしました！");
+  }).catch(() => {});
+}
+
+// 📤 スプレッドシートへデータを書き込む (POST - 骨組み厳守)
+async function saveToSpreadsheet() {
+  const statusLabel = document.getElementById('sync-status');
+  statusLabel.innerText = "💾 クラウドに保存中...";
+  try {
+    const res = await fetch(GAS_API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify(appData)
+    });
+    if (res.ok) {
+      statusLabel.innerText = "✅ スプレッドシートに保存しました！";
+    } else {
+      statusLabel.innerText = "❌ クラウド保存エラー(ステータス不正)";
+    }
+  } catch(e) {
+    console.error(e);
+    statusLabel.innerText = "❌ クラウド保存エラー";
+  }
 }
 </script>
 </body>

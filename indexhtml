@@ -1,901 +1,528 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>ギターコードフォーム表ビルダー</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ギターコードフォーム表</title>
 <style>
-  :root {
-    --bg: #f6f7f9;
-    --card: #ffffff;
-    --border: #d0d7de;
-    --text: #1f2328;
-    --muted: #656d76;
-    --accent: #0969da;
-    --manual: #e11d48;
-    --fret-line: #8c959f;
-    --string-line: #57606a;
-  }
-
-  * {
-    box-sizing: border-box;
-  }
-
   body {
+    font-family: sans-serif;
+    background: #f6f7f9;
     margin: 0;
     padding: 20px;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Sans", "Yu Gothic", sans-serif;
-    background: var(--bg);
-    color: var(--text);
+    color: #1f2328;
   }
-
   .container {
-    max-width: 1200px;
+    max-width: 1100px;
     margin: 0 auto;
   }
-
-  header {
-    margin-bottom: 16px;
-  }
-
-  h1 {
-    font-size: 1.35rem;
-    margin: 0 0 6px;
-  }
-
-  .subtitle {
-    font-size: 0.85rem;
-    color: var(--muted);
-    margin: 0;
-  }
-
   .control-panel {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 16px;
+    background: #fff;
+    border: 1px solid #d0d7de;
+    padding: 15px;
+    border-radius: 8px;
     margin-bottom: 20px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
   }
-
   .input-row {
     display: flex;
-    flex-wrap: wrap;
     gap: 10px;
-    align-items: center;
-  }
-
-  .input-row input[type="text"] {
-    flex: 1;
-    min-width: 240px;
-    padding: 10px 12px;
-    font-size: 1rem;
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    outline: none;
-  }
-
-  .input-row input[type="text"]:focus {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px rgba(9, 105, 218, 0.15);
-  }
-
-  button {
-    cursor: pointer;
-    font-family: inherit;
-    border-radius: 6px;
-    border: 1px solid var(--border);
-    background: #fff;
-    color: var(--text);
-    padding: 9px 14px;
-    font-size: 0.9rem;
-    font-weight: 600;
-    transition: background 0.15s, border-color 0.15s;
-  }
-
-  button:hover {
-    background: #f3f4f6;
-  }
-
-  button.primary {
-    background: var(--accent);
-    border-color: var(--accent);
-    color: #fff;
-  }
-
-  button.primary:hover {
-    background: #0858b9;
-  }
-
-  .legend {
-    margin-top: 10px;
-    display: flex;
     flex-wrap: wrap;
-    gap: 16px;
-    font-size: 0.8rem;
-    color: var(--muted);
-  }
-
-  .legend span {
-    display: inline-flex;
     align-items: center;
-    gap: 5px;
   }
-
-  .dot-sample {
-    display: inline-block;
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    background: #1f2328;
+  input[type="text"] {
+    flex: 1;
+    min-width: 220px;
+    padding: 8px 12px;
+    font-size: 1rem;
+    border: 1px solid #d0d7de;
+    border-radius: 6px;
   }
-
-  .dot-sample.manual {
-    background: var(--manual);
+  button {
+    padding: 8px 14px;
+    font-size: 0.9rem;
+    font-weight: bold;
+    cursor: pointer;
+    background: #0969da;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
   }
+  button:hover { background: #0858b9; }
+  .secondary-btn {
+    background: #f6f8fa;
+    color: #1f2328;
+    border: 1px solid #d0d7de;
+  }
+  .secondary-btn:hover { background: #e5e7eb; }
 
   .board-grid {
     display: flex;
     flex-wrap: wrap;
     gap: 16px;
-    align-items: flex-start;
   }
-
   .chord-card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 10px;
+    background: #fff;
+    border: 1px solid #d0d7de;
+    border-radius: 8px;
     padding: 12px;
-    width: 225px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    width: 220px;
     position: relative;
-    user-select: none;
   }
-
   .card-top-actions {
     display: flex;
     justify-content: flex-end;
     gap: 4px;
     margin-bottom: 4px;
   }
-
   .mini-btn {
-    width: 24px;
-    height: 24px;
+    width: 22px;
+    height: 22px;
     padding: 0;
-    font-size: 0.95rem;
-    line-height: 1;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 4px;
+    font-size: 0.8rem;
     background: #f6f8fa;
+    color: #1f2328;
+    border: 1px solid #d0d7de;
+    border-radius: 4px;
   }
-
-  .mini-btn:hover {
-    background: #e5e7eb;
-  }
-
   .chord-header {
     display: flex;
-    align-items: center;
     justify-content: space-between;
-    gap: 6px;
-    margin-bottom: 8px;
-    padding-bottom: 6px;
+    align-items: center;
     border-bottom: 1px solid #eaeef2;
+    padding-bottom: 6px;
+    margin-bottom: 8px;
     position: relative;
   }
-
   .chord-name-input {
-    font-size: 1.25rem;
-    font-weight: 700;
+    font-size: 1.2rem;
+    font-weight: bold;
+    width: 110px;
     border: 1px solid transparent;
-    border-radius: 4px;
-    padding: 2px 4px;
-    width: 130px;
-    color: var(--text);
     background: transparent;
+    padding: 2px;
   }
-
-  .chord-name-input:hover,
-  .chord-name-input:focus {
-    border-color: var(--border);
+  .chord-name-input:focus, .chord-name-input:hover {
+    border-color: #d0d7de;
     background: #f6f8fa;
     outline: none;
   }
-
   .variant-badge {
     font-size: 0.7rem;
-    color: var(--muted);
+    color: #656d76;
     display: block;
-    padding-left: 4px;
-    min-height: 14px;
   }
-
   .dropdown-btn {
-    padding: 3px 7px;
     font-size: 0.75rem;
+    padding: 3px 6px;
     background: #f6f8fa;
-    border: 1px solid var(--border);
+    color: #1f2328;
+    border: 1px solid #d0d7de;
     border-radius: 4px;
-    color: var(--text);
   }
-
   .dropdown-menu {
     position: absolute;
     top: 100%;
     right: 0;
-    z-index: 20;
     background: #fff;
-    border: 1px solid var(--border);
+    border: 1px solid #d0d7de;
     border-radius: 6px;
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
-    min-width: 185px;
-    padding: 4px 0;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     display: none;
+    z-index: 10;
+    min-width: 160px;
   }
-
-  .dropdown-menu.open {
-    display: block;
-  }
-
+  .dropdown-menu.open { display: block; }
   .dropdown-item {
-    padding: 7px 12px;
-    font-size: 0.82rem;
+    padding: 6px 10px;
+    font-size: 0.8rem;
     cursor: pointer;
   }
-
-  .dropdown-item:hover {
-    background: #f3f4f6;
-  }
-
-  .dropdown-item.active {
-    background: #eff6ff;
-    color: var(--accent);
-    font-weight: 700;
-  }
+  .dropdown-item:hover { background: #f3f4f6; }
+  .dropdown-item.active { color: #0969da; font-weight: bold; background: #eff6ff; }
 
   .fretboard-wrapper {
     display: flex;
     align-items: flex-start;
-    margin-top: 4px;
   }
-
   .start-fret-label {
-    width: 24px;
-    padding-top: 22px;
-    font-size: 0.85rem;
-    font-weight: 700;
-    color: var(--text);
+    width: 20px;
+    padding-top: 20px;
+    font-size: 0.8rem;
+    font-weight: bold;
     text-align: right;
-    padding-right: 4px;
+    padding-right: 3px;
   }
-
-  .fretboard-table {
+  table.fretboard {
     border-collapse: collapse;
   }
-
-  .fret-num-row td {
-    text-align: center;
-    font-size: 0.68rem;
-    color: var(--muted);
-    padding-bottom: 2px;
-    height: 16px;
-  }
-
-  .string-row {
-    height: 24px;
-  }
-
-  .open-cell {
-    width: 24px;
-    height: 24px;
+  table.fretboard td {
+    height: 22px;
     text-align: center;
     vertical-align: middle;
-    cursor: pointer;
-    position: relative;
+  }
+  .fret-num-row td {
+    font-size: 0.65rem;
+    color: #656d76;
+    height: 14px;
+  }
+  .open-cell {
+    width: 22px;
     border-right: 3px solid #1f2328;
+    cursor: pointer;
+    position: relative;
   }
-
   .open-cell.no-nut {
-    border-right: 2px solid var(--fret-line);
+    border-right: 2px solid #8c959f;
   }
-
   .fret-cell {
-    width: 34px;
-    height: 24px;
+    width: 32px;
+    border-right: 1.5px solid #8c959f;
     position: relative;
     cursor: pointer;
-    border-right: 1.5px solid var(--fret-line);
   }
-
   .fret-cell::before {
     content: "";
     position: absolute;
-    left: 0;
-    right: 0;
-    top: 50%;
+    left: 0; right: 0; top: 50%;
     height: 1.5px;
-    background: var(--string-line);
+    background: #57606a;
     transform: translateY(-50%);
-    z-index: 1;
   }
-
-  .fret-cell:hover,
-  .open-cell:hover {
+  .fret-cell:hover, .open-cell:hover {
     background: rgba(9, 105, 218, 0.08);
   }
-
   .finger-dot {
-    width: 15px;
-    height: 15px;
-    border-radius: 50%;
+    width: 13px; height: 13px;
     background: #1f2328;
+    border-radius: 50%;
     position: absolute;
-    top: 50%;
-    left: 50%;
+    top: 50%; left: 50%;
     transform: translate(-50%, -50%);
     z-index: 2;
   }
-
   .finger-dot.manual {
-    background: var(--manual);
-    box-shadow: 0 0 0 2px rgba(225, 29, 72, 0.25);
+    background: #e11d48;
   }
-
   .open-mark {
-    display: inline-block;
-    font-size: 0.85rem;
-    font-weight: 700;
-    line-height: 1;
-    color: #1f2328;
+    font-size: 0.8rem;
+    font-weight: bold;
   }
-
   .open-mark.manual {
-    color: var(--manual);
+    color: #e11d48;
   }
-
   .card-footer {
-    margin-top: 8px;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    margin-top: 8px;
     font-size: 0.75rem;
-    color: var(--muted);
-  }
-
-  .fret-shift-btns button {
-    padding: 2px 6px;
-    font-size: 0.72rem;
-  }
-
-  @media print {
-    .control-panel,
-    .card-top-actions,
-    .dropdown-btn,
-    .card-footer {
-      display: none !important;
-    }
-    body {
-      background: #fff;
-      padding: 0;
-    }
-    .chord-card {
-      box-shadow: none;
-      break-inside: avoid;
-    }
   }
 </style>
 </head>
 <body>
+
 <div class="container">
-  <header>
-    <h1>ギターコードフォーム表</h1>
-    <p class="subtitle">コード名を入力すると「コードフォーム表」の規則に従って表示します。指板をタップして自由に編集できます。</p>
-  </header>
-
-  <section class="control-panel">
+  <div class="control-panel">
     <div class="input-row">
-      <input
-        type="text"
-        id="chordInput"
-        value="B A# A G"
-        placeholder="例: B A# A G / C Am F G7 / Bm7b5"
-      />
-      <button type="button" class="primary" id="generateBtn">コード表を表示</button>
-      <button type="button" id="addEmptyBtn">＋ 空の指板を追加</button>
-      <button type="button" onclick="window.print()">印刷 / PDF保存</button>
+      <input type="text" id="chordInput" value="B A# A G">
+      <button type="button" id="generateBtn">コード表を表示</button>
+      <button type="button" class="secondary-btn" id="addEmptyBtn">＋ 空の指板を追加</button>
+      <button type="button" class="secondary-btn" onclick="window.print()">印刷</button>
     </div>
-    <div class="legend">
-      <span><i class="dot-sample"></i> 自動設定された押弦</span>
-      <span><i class="dot-sample manual"></i> 手動で変更した箇所（赤表示）</span>
-      <span>※ 各コード右上の「▼」で別フォーム切替、「＋」「－」で指板の追加・削除、指板タップで押弦の追加・解除ができます。</span>
-    </div>
-  </section>
+  </div>
 
-  <main id="boardGrid" class="board-grid"></main>
+  <div id="boardGrid" class="board-grid"></div>
 </div>
 
 <script>
-(function() {
-  const NOTE_TO_SEMI = {
-    "C": 0, "B#": 0,
-    "C#": 1, "Db": 1,
-    "D": 2,
-    "D#": 3, "Eb": 3,
-    "E": 4, "Fb": 4,
-    "F": 5, "E#": 5,
-    "F#": 6, "Gb": 6,
-    "G": 7,
-    "G#": 8, "Ab": 8,
-    "A": 9,
-    "A#": 10, "Bb": 10,
-    "B": 11, "Cb": 11
-  };
+const NOTE_TO_SEMI = { "C": 0, "C#": 1, "Db": 1, "D": 2, "D#": 3, "Eb": 3, "E": 4, "F": 5, "F#": 6, "Gb": 6, "G": 7, "G#": 8, "Ab": 8, "A": 9, "A#": 10, "Bb": 10, "B": 11 };
+const FORM_TEMPLATES = {
+  "5_M": { label: "5弦ルート (A型)", root: 5, offsets: [0, 2, 2, 2, 0, "x"] },
+  "5_m": { label: "5弦ルート (Am型)", root: 5, offsets: [0, 1, 2, 2, 0, "x"] },
+  "5_7": { label: "5弦ルート (A7型)", root: 5, offsets: [0, 2, 0, 2, 0, "x"] },
+  "5_M7": { label: "5弦ルート (AM7型)", root: 5, offsets: [0, 2, 1, 2, 0, "x"] },
+  "5_m7": { label: "5弦ルート (Am7型)", root: 5, offsets: [0, 1, 0, 2, 0, "x"] },
+  "5_6": { label: "5弦ルート (A6型)", root: 5, offsets: [2, 2, 2, 2, 0, "x"] },
+  "5_add9": { label: "5弦ルート (Aadd9型)", root: 5, offsets: [0, 0, 2, 2, 0, "x"] },
+  "5_sus4": { label: "5弦ルート (Asus4型)", root: 5, offsets: [0, 3, 2, 2, 0, "x"] },
+  "5_dim": { label: "5弦ルート (Adim型)", root: 5, offsets: [0, 1, 2, 1, 0, "x"] },
+  "5_m7b5": { label: "5弦ルート (Am7b5型)", root: 5, offsets: ["x", 1, 0, 1, 0, "x"] },
 
-  const STRING5_OPEN = 9; // A
-  const STRING6_OPEN = 4; // E
+  "6_M": { label: "6弦ルート (E型)", root: 6, offsets: [0, 0, 1, 2, 2, 0] },
+  "6_m": { label: "6弦ルート (Em型)", root: 6, offsets: [0, 0, 0, 2, 2, 0] },
+  "6_7": { label: "6弦ルート (E7型)", root: 6, offsets: [0, 0, 1, 0, 2, 0] },
+  "6_M7": { label: "6弦ルート (EM7型)", root: 6, offsets: [0, 0, 1, 1, 2, 0] },
+  "6_m7": { label: "6弦ルート (Em7型)", root: 6, offsets: [0, 0, 0, 0, 2, 0] },
+  "6_6": { label: "6弦ルート (E6型)", root: 6, offsets: [0, 2, 1, 2, 2, 0] },
+  "6_add9": { label: "6弦ルート (Eadd9型)", root: 6, offsets: [2, 0, 1, 2, 2, 0] },
+  "6_sus4": { label: "6弦ルート (Esus4型)", root: 6, offsets: [0, 0, 2, 2, 2, 0] },
+  "6_dim": { label: "6弦ルート (Edim型)", root: 6, offsets: ["x", 2, 0, 2, 1, 0] },
+  "6_m7b5": { label: "6弦ルート (Em7b5型)", root: 6, offsets: ["x", 0, 0, 0, 1, 0] }
+};
 
-  const FORM_TEMPLATES = {
-    "5_M":     { label: "5弦ルート (A型)",     rootString: 5, offsets: [0, 2, 2, 2, 0, "x"] },
-    "5_m":     { label: "5弦ルート (Am型)",    rootString: 5, offsets: [0, 1, 2, 2, 0, "x"] },
-    "5_7":     { label: "5弦ルート (A7型)",    rootString: 5, offsets: [0, 2, 0, 2, 0, "x"] },
-    "5_M7":    { label: "5弦ルート (AM7型)",   rootString: 5, offsets: [0, 2, 1, 2, 0, "x"] },
-    "5_m7":    { label: "5弦ルート (Am7型)",   rootString: 5, offsets: [0, 1, 0, 2, 0, "x"] },
-    "5_6":     { label: "5弦ルート (A6型)",    rootString: 5, offsets: [2, 2, 2, 2, 0, "x"] },
-    "5_add9":  { label: "5弦ルート (Aadd9型)", rootString: 5, offsets: [0, 0, 2, 2, 0, "x"] },
-    "5_sus4":  { label: "5弦ルート (Asus4型)", rootString: 5, offsets: [0, 3, 2, 2, 0, "x"] },
-    "5_dim":   { label: "5弦ルート (Adim型)",  rootString: 5, offsets: [0, 1, 2, 1, 0, "x"] },
-    "5_m7b5":  { label: "5弦ルート (Am7b5型)", rootString: 5, offsets: ["x", 1, 0, 1, 0, "x"] },
+const OPEN_CHORDS = {
+  "C": [{ label: "オープンフォーム", frets: [0, 1, 0, 2, 3, "x"] }],
+  "G": [{ label: "オープンフォーム", frets: [3, 0, 0, 0, 2, 3] }],
+  "D": [{ label: "オープンフォーム", frets: [2, 3, 2, 0, "x", "x"] }],
+  "Dm": [{ label: "オープンフォーム", frets: [1, 3, 2, 0, "x", "x"] }],
+  "E": [{ label: "オープンフォーム", frets: [0, 0, 1, 2, 2, 0] }],
+  "Em": [{ label: "オープンフォーム", frets: [0, 0, 0, 2, 2, 0] }]
+};
 
-    "6_M":     { label: "6弦ルート (E型)",     rootString: 6, offsets: [0, 0, 1, 2, 2, 0] },
-    "6_m":     { label: "6弦ルート (Em型)",    rootString: 6, offsets: [0, 0, 0, 2, 2, 0] },
-    "6_7":     { label: "6弦ルート (E7型)",    rootString: 6, offsets: [0, 0, 1, 0, 2, 0] },
-    "6_M7":    { label: "6弦ルート (EM7型)",   rootString: 6, offsets: [0, 0, 1, 1, 2, 0] },
-    "6_m7":    { label: "6弦ルート (Em7型)",   rootString: 6, offsets: [0, 0, 0, 0, 2, 0] },
-    "6_6":     { label: "6弦ルート (E6型)",    rootString: 6, offsets: [0, 2, 1, 2, 2, 0] },
-    "6_add9":  { label: "6弦ルート (Eadd9型)", rootString: 6, offsets: [2, 0, 1, 2, 2, 0] },
-    "6_sus4":  { label: "6弦ルート (Esus4型)", rootString: 6, offsets: [0, 0, 2, 2, 2, 0] },
-    "6_dim":   { label: "6弦ルート (Edim型)",  rootString: 6, offsets: ["x", 2, 0, 2, 1, 0] },
-    "6_m7b5":  { label: "6弦ルート (Em7b5型)", rootString: 6, offsets: ["x", 0, 0, 0, 1, 0] }
-  };
+let cards = [];
+let nextId = 1;
 
-  const OPEN_CHORDS = {
-    "C":     [{ label: "オープンフォーム", frets: [0, 1, 0, 2, 3, "x"] }],
-    "CM7":   [{ label: "オープンフォーム", frets: [0, 0, 0, 2, 3, "x"] }],
-    "C7":    [{ label: "オープンフォーム", frets: [0, 1, 3, 2, 3, "x"] }],
-    "Cadd9": [{ label: "オープンフォーム", frets: [3, 3, 0, 2, 3, "x"] }],
-    "D":     [{ label: "オープンフォーム", frets: [2, 3, 2, 0, "x", "x"] }],
-    "Dm":    [{ label: "オープンフォーム", frets: [1, 3, 2, 0, "x", "x"] }],
-    "D7":    [{ label: "オープンフォーム", frets: [2, 1, 2, 0, "x", "x"] }],
-    "DM7":   [{ label: "オープンフォーム", frets: [2, 2, 2, 0, "x", "x"] }],
-    "Dm7":   [{ label: "オープンフォーム", frets: [1, 1, 2, 0, "x", "x"] }],
-    "Dsus4": [{ label: "オープンフォーム", frets: [3, 3, 2, 0, "x", "x"] }],
-    "G":     [{ label: "オープンフォーム", frets: [3, 0, 0, 0, 2, 3] }],
-    "G7":    [{ label: "オープンフォーム", frets: [1, 0, 0, 0, 2, 3] }],
-    "GM7":   [{ label: "オープンフォーム", frets: [2, 0, 0, 0, 2, 3] }],
-    "G6":    [{ label: "オープンフォーム", frets: [0, 0, 0, 0, 2, 3] }],
-    "B7":    [{ label: "オープンフォーム", frets: [2, 0, 2, 1, 2, "x"] }]
-  };
+function parseChord(str) {
+  str = str.trim().replace(/♭/g, "b").replace(/♯/g, "#");
+  const m = str.match(/^([A-G][#b]?)(.*)$/);
+  if (!m) return null;
+  let root = m[1];
+  let suf = m[2] || "M";
+  if (suf === "maj") suf = "M";
+  return { root, suffix: suf, norm: root + (suf === "M" ? "" : suf) };
+}
 
-  function parseChordName(raw) {
-    const cleaned = raw.trim()
-      .replace(/♭/g, "b")
-      .replace(/♯/g, "#")
-      .replace(/△/g, "M")
-      .replace(/maj/g, "M");
+function getVariants(chordStr) {
+  const p = parseChord(chordStr);
+  if (!p) return [];
+  const rootSemi = NOTE_TO_SEMI[p.root] || 0;
+  const f5 = (rootSemi - 9 + 12) % 12;
+  const f6 = (rootSemi - 4 + 12) % 12;
+  const list = [];
 
-    const match = cleaned.match(/^([A-G][#b]?)(.*)$/);
-    if (!match) return null;
+  const t5 = FORM_TEMPLATES["5_" + p.suffix];
+  const t6 = FORM_TEMPLATES["6_" + p.suffix];
+  const open = OPEN_CHORDS[p.norm] || [];
 
-    const root = match[1];
-    let suffix = match[2];
+  if (t5) list.push({ label: t5.label + " (" + f5 + "F)", frets: t5.offsets.map(o => o === "x" ? "x" : f5 + o) });
+  if (t6) list.push({ label: t6.label + " (" + f6 + "F)", frets: t6.offsets.map(o => o === "x" ? "x" : f6 + o) });
+  open.forEach(o => list.push({ label: o.label, frets: o.frets.slice() }));
 
-    if (suffix === "" || suffix === "M") suffix = "M";
-    else if (suffix === "m" || suffix === "min") suffix = "m";
-    else if (suffix === "7") suffix = "7";
-    else if (suffix === "M7") suffix = "M7";
-    else if (suffix === "m7" || suffix === "min7") suffix = "m7";
-    else if (suffix === "6") suffix = "6";
-    else if (suffix === "add9") suffix = "add9";
-    else if (suffix === "sus4") suffix = "sus4";
-    else if (suffix === "dim" || suffix === "dim7") suffix = "dim";
-    else if (suffix === "m7b5" || suffix === "m7-5" || suffix === "ø") suffix = "m7b5";
-    else return null;
-
-    return { root, suffix, normalized: root + (suffix === "M" ? "" : suffix) };
+  if (list.length === 0) {
+    list.push({ label: "デフォルト", frets: [0, 0, 0, 0, 0, "x"] });
   }
+  return list;
+}
 
-  function getChordVariants(chordStr) {
-    const parsed = parseChordName(chordStr);
-    if (!parsed) return [];
+function createCard(chordName) {
+  const vars = getVariants(chordName);
+  const card = { id: nextId++, chordName, variants: vars, variantIdx: 0, startFret: 1, strings: [] };
+  applyVariant(card, 0);
+  return card;
+}
 
-    const { root, suffix, normalized } = parsed;
-    const rootSemi = NOTE_TO_SEMI[root];
-    const variants = [];
+function applyVariant(card, idx) {
+  if (!card.variants[idx]) return;
+  card.variantIdx = idx;
+  const frets = card.variants[idx].frets;
+  const nums = frets.filter(f => typeof f === "number" && f > 0);
+  card.startFret = nums.length ? Math.min(...nums) : 1;
+  if (card.startFret > 4) card.startFret = Math.min(...nums);
+  else card.startFret = 1;
 
-    const fret5 = (rootSemi - STRING5_OPEN + 12) % 12;
-    const fret6 = (rootSemi - STRING6_OPEN + 12) % 12;
+  card.strings = frets.map(f => {
+    if (f === "x") return { state: "mute", fret: null, manual: false };
+    if (f === 0) return { state: "open", fret: 0, manual: false };
+    return { state: "fret", fret: f, manual: false };
+  });
+}
 
-    const tmpl5 = FORM_TEMPLATES["5_" + suffix];
-    const tmpl6 = FORM_TEMPLATES["6_" + suffix];
+function render() {
+  const grid = document.getElementById("boardGrid");
+  if (!grid) return;
+  grid.innerHTML = "";
 
-    const makeVariant = (tmpl, baseFret) => {
-      const frets = tmpl.offsets.map(off => (off === "x" ? "x" : baseFret + off));
-      return {
-        label: tmpl.label + " (" + tmpl.rootString + "弦" + baseFret + "F)",
-        frets: frets
-      };
+  cards.forEach((card, cIdx) => {
+    const el = document.createElement("div");
+    el.className = "chord-card";
+
+    // 上部ボタン
+    const top = document.createElement("div");
+    top.className = "card-top-actions";
+    
+    const addBtn = document.createElement("button");
+    addBtn.className = "mini-btn";
+    addBtn.textContent = "+";
+    addBtn.onclick = () => { cards.splice(cIdx + 1, 0, { id: nextId++, chordName: "", variants: [], variantIdx: 0, startFret: 1, strings: Array(6).fill({state:"none", fret:null, manual:false}) }); render(); };
+    
+    const delBtn = document.createElement("button");
+    delBtn.className = "mini-btn";
+    delBtn.textContent = "-";
+    delBtn.onclick = () => { cards.splice(cIdx, 1); if (!cards.length) cards.push({ id: nextId++, chordName: "", variants: [], variantIdx: 0, startFret: 1, strings: Array(6).fill({state:"none", fret:null, manual:false}) }); render(); };
+    
+    top.append(addBtn, delBtn);
+    el.appendChild(top);
+
+    // ヘッダー
+    const header = document.createElement("div");
+    header.className = "chord-header";
+    
+    const info = document.createElement("div");
+    const nameInput = document.createElement("input");
+    nameInput.type = "text";
+    nameInput.className = "chord-name-input";
+    nameInput.value = card.chordName;
+    nameInput.onchange = (e) => {
+      card.chordName = e.target.value.trim();
+      card.variants = getVariants(card.chordName);
+      if (card.variants.length) applyVariant(card, 0);
+      render();
     };
 
-    const openList = OPEN_CHORDS[normalized] || [];
+    const badge = document.createElement("span");
+    badge.className = "variant-badge";
+    badge.textContent = card.variants[card.variantIdx] ? card.variants[card.variantIdx].label : "";
+    
+    info.append(nameInput, badge);
 
-    if (fret6 === 0 && tmpl6) {
-      variants.push(makeVariant(tmpl6, 0));
-      if (tmpl5) variants.push(makeVariant(tmpl5, fret5));
-    } else if (openList.length > 0 && (root === "G" || root === "C" || root === "D")) {
-      openList.forEach(o => variants.push({ label: o.label, frets: o.frets.slice() }));
-      if (tmpl5) variants.push(makeVariant(tmpl5, fret5));
-      if (tmpl6) variants.push(makeVariant(tmpl6, fret6));
-    } else {
-      if (tmpl5) variants.push(makeVariant(tmpl5, fret5));
-      if (tmpl6) variants.push(makeVariant(tmpl6, fret6));
-      openList.forEach(o => variants.push({ label: o.label, frets: o.frets.slice() }));
-    }
-
-    if (fret5 === 0 && tmpl5) {
-      variants.push(makeVariant(tmpl5, 12));
-    }
-
-    return variants;
-  }
-
-  function calcStartFret(frets) {
-    const nums = frets.filter(f => typeof f === "number" && f > 0);
-    if (nums.length === 0) return 1;
-    const minF = Math.min.apply(null, nums);
-    const maxF = Math.max.apply(null, nums);
-    if (maxF <= 4) return 1;
-    return minF;
-  }
-
-  let nextId = 1;
-  let cards = [];
-
-  function createEmptyStrings() {
-    const arr = [];
-    for (let i = 0; i < 6; i++) {
-      arr.push({ state: "none", fret: null, manual: false });
-    }
-    return arr;
-  }
-
-  function createCardFromChord(chordName) {
-    const trimmed = chordName.trim();
-    const variants = getChordVariants(trimmed);
-    const card = {
-      id: nextId++,
-      chordName: trimmed,
-      variants: variants,
-      variantIndex: 0,
-      startFret: 1,
-      strings: createEmptyStrings()
-    };
-
-    if (variants.length > 0) {
-      applyVariantToCard(card, 0);
-    }
-    return card;
-  }
-
-  function createEmptyCard() {
-    return {
-      id: nextId++,
-      chordName: "",
-      variants: [],
-      variantIndex: 0,
-      startFret: 1,
-      strings: createEmptyStrings()
-    };
-  }
-
-  function applyVariantToCard(card, variantIndex) {
-    if (!card.variants || !card.variants[variantIndex]) return;
-    card.variantIndex = variantIndex;
-    const frets = card.variants[variantIndex].frets;
-    card.startFret = calcStartFret(frets);
-    card.strings = frets.map(f => {
-      if (f === "x") return { state: "mute", fret: null, manual: false };
-      if (f === 0) return { state: "open", fret: 0, manual: false };
-      return { state: "fret", fret: f, manual: false };
+    const dropBtn = document.createElement("button");
+    dropBtn.className = "dropdown-btn";
+    dropBtn.textContent = "▼";
+    
+    const menu = document.createElement("div");
+    menu.className = "dropdown-menu";
+    card.variants.forEach((v, vIdx) => {
+      const item = document.createElement("div");
+      item.className = "dropdown-item" + (vIdx === card.variantIdx ? " active" : "");
+      item.textContent = v.label;
+      item.onclick = (ev) => { ev.stopPropagation(); applyVariant(card, vIdx); render(); };
+      menu.appendChild(item);
     });
-  }
 
-  function render() {
-    const grid = document.getElementById("boardGrid");
-    if (!grid) return;
-    grid.innerHTML = "";
+    dropBtn.onclick = (ev) => {
+      ev.stopPropagation();
+      document.querySelectorAll(".dropdown-menu.open").forEach(m => { if (m !== menu) m.classList.remove("open"); });
+      menu.classList.toggle("open");
+    };
 
-    cards.forEach((card, cardIdx) => {
-      const el = document.createElement("div");
-      el.className = "chord-card";
+    header.append(info, dropBtn, menu);
+    el.appendChild(header);
 
-      // ＋ / － ボタン
-      const topActions = document.createElement("div");
-      topActions.className = "card-top-actions";
+    // 指板
+    const wrapper = document.createElement("div");
+    wrapper.className = "fretboard-wrapper";
 
-      const addBtn = document.createElement("button");
-      addBtn.type = "button";
-      addBtn.className = "mini-btn";
-      addBtn.title = "右隣に新しい指板を追加";
-      addBtn.textContent = "+";
-      addBtn.onclick = function() {
-        cards.splice(cardIdx + 1, 0, createEmptyCard());
+    const sLabel = document.createElement("div");
+    sLabel.className = "start-fret-label";
+    sLabel.textContent = card.startFret > 1 ? card.startFret : "";
+    wrapper.appendChild(sLabel);
+
+    const table = document.createElement("table");
+    table.className = "fretboard";
+
+    const numRow = document.createElement("tr");
+    numRow.className = "fret-num-row";
+    numRow.appendChild(document.createElement("td"));
+    for (let f = 0; f < 4; f++) {
+      const td = document.createElement("td");
+      td.textContent = (card.startFret + f) + "F";
+      numRow.appendChild(td);
+    }
+    table.appendChild(numRow);
+
+    for (let s = 0; s < 6; s++) {
+      const tr = document.createElement("tr");
+      const sData = card.strings[s] || { state: "none", fret: null, manual: false };
+
+      const openTd = document.createElement("td");
+      openTd.className = "open-cell" + (card.startFret > 1 ? " no-nut" : "");
+      if (sData.state === "open" || sData.state === "mute") {
+        const mark = document.createElement("span");
+        mark.className = "open-mark" + (sData.manual ? " manual" : "");
+        mark.textContent = sData.state === "open" ? "o" : "x";
+        openTd.appendChild(mark);
+      }
+      openTd.onclick = () => {
+        if (sData.state === "open") card.strings[s] = { state: "mute", fret: null, manual: true };
+        else if (sData.state === "mute") card.strings[s] = { state: "none", fret: null, manual: true };
+        else card.strings[s] = { state: "open", fret: 0, manual: true };
         render();
       };
+      tr.appendChild(openTd);
 
-      const removeBtn = document.createElement("button");
-      removeBtn.type = "button";
-      removeBtn.className = "mini-btn";
-      removeBtn.title = "この指板を削除";
-      removeBtn.textContent = "-";
-      removeBtn.onclick = function() {
-        if (cards.length > 1) {
-          cards.splice(cardIdx, 1);
-        } else {
-          cards[0] = createEmptyCard();
+      for (let f = 0; f < 4; f++) {
+        const fretNum = card.startFret + f;
+        const fTd = document.createElement("td");
+        fTd.className = "fret-cell";
+        if (sData.state === "fret" && sData.fret === fretNum) {
+          const dot = document.createElement("div");
+          dot.className = "finger-dot" + (sData.manual ? " manual" : "");
+          fTd.appendChild(dot);
         }
-        render();
-      };
-
-      topActions.appendChild(addBtn);
-      topActions.appendChild(removeBtn);
-      el.appendChild(topActions);
-
-      // ヘッダー（コード名 ＋ ▼ボタン）
-      const header = document.createElement("div");
-      header.className = "chord-header";
-
-      const leftInfo = document.createElement("div");
-      const nameInput = document.createElement("input");
-      nameInput.type = "text";
-      nameInput.className = "chord-name-input";
-      nameInput.value = card.chordName;
-      nameInput.placeholder = "コード名";
-      nameInput.onchange = function(e) {
-        const val = e.target.value.trim();
-        card.chordName = val;
-        card.variants = getChordVariants(val);
-        if (card.variants.length > 0) {
-          applyVariantToCard(card, 0);
-        }
-        render();
-      };
-
-      const badge = document.createElement("span");
-      badge.className = "variant-badge";
-      if (card.variants.length > 0 && card.variants[card.variantIndex]) {
-        badge.textContent = card.variants[card.variantIndex].label;
-      }
-
-      leftInfo.appendChild(nameInput);
-      leftInfo.appendChild(badge);
-      header.appendChild(leftInfo);
-
-      const dropBtn = document.createElement("button");
-      dropBtn.type = "button";
-      dropBtn.className = "dropdown-btn";
-      dropBtn.textContent = "▼";
-      dropBtn.title = "ほかの抑え方を選ぶ";
-
-      const menu = document.createElement("div");
-      menu.className = "dropdown-menu";
-
-      if (card.variants.length > 0) {
-        card.variants.forEach((v, vIdx) => {
-          const item = document.createElement("div");
-          item.className = "dropdown-item" + (vIdx === card.variantIndex ? " active" : "");
-          item.textContent = v.label;
-          item.onclick = function(ev) {
-            ev.stopPropagation();
-            applyVariantToCard(card, vIdx);
-            render();
-          };
-          menu.appendChild(item);
-        });
-      } else {
-        const emptyItem = document.createElement("div");
-        emptyItem.className = "dropdown-item";
-        emptyItem.style.color = "#656d76";
-        emptyItem.textContent = "候補フォームなし";
-        menu.appendChild(emptyItem);
-      }
-
-      dropBtn.onclick = function(ev) {
-        ev.stopPropagation();
-        document.querySelectorAll(".dropdown-menu.open").forEach(m => {
-          if (m !== menu) m.classList.remove("open");
-        });
-        menu.classList.toggle("open");
-      };
-
-      header.appendChild(dropBtn);
-      header.appendChild(menu);
-      el.appendChild(header);
-
-      // 指板描画
-      const wrapper = document.createElement("div");
-      wrapper.className = "fretboard-wrapper";
-
-      const startLabel = document.createElement("div");
-      startLabel.className = "start-fret-label";
-      startLabel.textContent = card.startFret > 1 ? String(card.startFret) : "";
-      wrapper.appendChild(startLabel);
-
-      const table = document.createElement("table");
-      table.className = "fretboard-table";
-
-      const numRow = document.createElement("tr");
-      numRow.className = "fret-num-row";
-      numRow.appendChild(document.createElement("td"));
-
-      for (let col = 0; col < 4; col++) {
-        const fretNum = card.startFret + col;
-        const td = document.createElement("td");
-        td.textContent = fretNum + "F";
-        numRow.appendChild(td);
-      }
-      table.appendChild(numRow);
-
-      for (let s = 0; s < 6; s++) {
-        const tr = document.createElement("tr");
-        tr.className = "string-row";
-        const sData = card.strings[s];
-
-        const openTd = document.createElement("td");
-        openTd.className = "open-cell" + (card.startFret > 1 ? " no-nut" : "");
-
-        if (sData.state === "open" || sData.state === "mute") {
-          const span = document.createElement("span");
-          span.className = "open-mark" + (sData.manual ? " manual" : "");
-          span.textContent = sData.state === "open" ? "o" : "x";
-          openTd.appendChild(span);
-        }
-
-        openTd.onclick = function() {
-          if (sData.state === "open") {
-            card.strings[s] = { state: "mute", fret: null, manual: true };
-          } else if (sData.state === "mute") {
+        fTd.onclick = () => {
+          if (sData.state === "fret" && sData.fret === fretNum) {
             card.strings[s] = { state: "none", fret: null, manual: true };
           } else {
-            card.strings[s] = { state: "open", fret: 0, manual: true };
+            card.strings[s] = { state: "fret", fret: fretNum, manual: true };
           }
           render();
         };
-        tr.appendChild(openTd);
-
-        for (let col = 0; col < 4; col++) {
-          const fretNum = card.startFret + col;
-          const td = document.createElement("td");
-          td.className = "fret-cell";
-
-          if (sData.state === "fret" && sData.fret === fretNum) {
-            const dot = document.createElement("div");
-            dot.className = "finger-dot" + (sData.manual ? " manual" : "");
-            td.appendChild(dot);
-          }
-
-          td.onclick = function() {
-            if (sData.state === "fret" && sData.fret === fretNum) {
-              card.strings[s] = { state: "none", fret: null, manual: true };
-            } else {
-              card.strings[s] = { state: "fret", fret: fretNum, manual: true };
-            }
-            render();
-          };
-
-          tr.appendChild(td);
-        }
-
-        table.appendChild(tr);
+        tr.appendChild(fTd);
       }
-
-      wrapper.appendChild(table);
-      el.appendChild(wrapper);
-
-      // フッター
-      const footer = document.createElement("div");
-      footer.className = "card-footer";
-
-      const shiftWrap = document.createElement("div");
-      shiftWrap.className = "fret-shift-btns";
-
-      const prevFret = document.createElement("button");
-      prevFret.type = "button";
-      prevFret.textContent = "◀";
-      prevFret.onclick = function() {
-        if (card.startFret > 1) {
-          card.startFret--;
-          render();
-        }
-      };
-
-      const nextFret = document.createElement("button");
-      nextFret.type = "button";
-      nextFret.textContent = "▶";
-      nextFret.onclick = function() {
-        if (card.startFret < 15) {
-          card.startFret++;
-          render();
-        }
-      };
-
-      shiftWrap.appendChild(prevFret);
-      shiftWrap.appendChild(nextFret);
-
-      const clearBtn = document.createElement("button");
-      clearBtn.type = "button";
-      clearBtn.style.padding = "2px 6px";
-      clearBtn.style.fontSize = "0.72rem";
-      clearBtn.textContent = "クリア";
-      clearBtn.onclick = function() {
-        card.strings = createEmptyStrings();
-        render();
-      };
-
-      footer.appendChild(shiftWrap);
-      footer.appendChild(clearBtn);
-      el.appendChild(footer);
-
-      grid.appendChild(el);
-    });
-  }
-
-  function generateFromInput() {
-    const input = document.getElementById("chordInput");
-    const text = input ? input.value : "";
-    const tokens = text.split(/[\s,、]+/).filter(Boolean);
-    if (tokens.length === 0) {
-      cards = [createEmptyCard()];
-    } else {
-      cards = tokens.map(t => createCardFromChord(t));
+      table.appendChild(tr);
     }
-    render();
+    wrapper.appendChild(table);
+    el.appendChild(wrapper);
+
+    // フッター
+    const footer = document.createElement("div");
+    footer.className = "card-footer";
+    const shift = document.createElement("div");
+    
+    const pBtn = document.createElement("button");
+    pBtn.className = "mini-btn"; pBtn.textContent = "◀";
+    pBtn.onclick = () => { if (card.startFret > 1) { card.startFret--; render(); } };
+    
+    const nBtn = document.createElement("button");
+    nBtn.className = "mini-btn"; nBtn.textContent = "▶";
+    nBtn.onclick = () => { if (card.startFret < 12) { card.startFret++; render(); } };
+    
+    shift.append(pBtn, nBtn);
+
+    const clr = document.createElement("button");
+    clr.className = "mini-btn"; clr.textContent = "クリア";
+    clr.style.width = "auto"; clr.style.padding = "2px 6px";
+    clr.onclick = () => { card.strings = Array(6).fill({state:"none", fret:null, manual:true}); render(); };
+
+    footer.append(shift, clr);
+    el.appendChild(footer);
+
+    grid.appendChild(el);
+  });
+}
+
+document.addEventListener("click", () => {
+  document.querySelectorAll(".dropdown-menu.open").forEach(m => m.classList.remove("open"));
+});
+
+function init() {
+  const genBtn = document.getElementById("generateBtn");
+  if (genBtn) {
+    genBtn.onclick = () => {
+      const val = document.getElementById("chordInput").value;
+      cards = val.split(/[\s,、]+/).filter(Boolean).map(t => createCard(t));
+      if (!cards.length) cards.push(createCard("C"));
+      render();
+    };
   }
-
-  function init() {
-    document.addEventListener("click", function() {
-      document.querySelectorAll(".dropdown-menu.open").forEach(m => m.classList.remove("open"));
-    });
-
-    const genBtn = document.getElementById("generateBtn");
-    if (genBtn) genBtn.onclick = generateFromInput;
-
-    const chordInput = document.getElementById("chordInput");
-    if (chordInput) {
-      chordInput.addEventListener("keydown", function(e) {
-        if (e.key === "Enter") generateFromInput();
-      });
-    }
-
-    const addEmptyBtn = document.getElementById("addEmptyBtn");
-    if (addEmptyBtn) {
-      addEmptyBtn.onclick = function() {
-        cards.push(createEmptyCard());
-        render();
-      };
-    }
-
-    generateFromInput();
+  const addBtn = document.getElementById("addEmptyBtn");
+  if (addBtn) {
+    addBtn.onclick = () => {
+      cards.push({ id: nextId++, chordName: "", variants: [], variantIdx: 0, startFret: 1, strings: Array(6).fill({state:"none", fret:null, manual:false}) });
+      render();
+    };
   }
+  // 初期読み込み
+  const val = document.getElementById("chordInput").value;
+  cards = val.split(/[\s,、]+/).filter(Boolean).map(t => createCard(t));
+  render();
+}
 
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", init);
-  } else {
-    init();
-  }
-})();
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", init);
+} else {
+  init();
+}
 </script>
 </body>
 </html>
